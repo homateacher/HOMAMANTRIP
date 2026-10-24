@@ -1,0 +1,2742 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>퀴즈 용사 호마맨: 수능 영단어 RPG</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Library -->
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=VT323&family=DungGeunMo&family=Gamja+Flower&family=Do+Hyeon&family=Gowun+Batang:wght@700&display=swap" rel="stylesheet">
+    <style id="customFontStyles">
+        body {
+            font-family: 'Jua', sans-serif;
+            user-select: none;
+            font-size: 16px;
+        }
+        .font-pixel {
+            font-family: 'VT323', monospace;
+        }
+    </style>
+    <style id="fontSizeStyles">
+        /* Dynamic Font Size Injection Target */
+    </style>
+    <style>
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(217, 119, 6, 0.6);
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 158, 11, 0.9);
+        }
+        /* Pixel Button Styling */
+        .pixel-btn {
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.4);
+        }
+        .pixel-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.4);
+        }
+        /* Animation Effects */
+        @keyframes heroPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-hero {
+            animation: heroPulse 2s infinite ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .animate-shake {
+            animation: shake 0.35s ease-in-out;
+        }
+        @keyframes flashNuke {
+            0% { opacity: 0; }
+            30% { opacity: 0.9; background-color: #ffffff; }
+            100% { opacity: 0; }
+        }
+        .animate-nuke {
+            animation: flashNuke 0.8s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-2 sm:p-4">
+
+    <!-- Global Background Audio Player Elements -->
+    <audio id="bgmAudioPlayer" loop preload="auto"></audio>
+
+    <!-- Flash Overlay for Ult Nukes -->
+    <div id="nukeOverlay" class="fixed inset-0 pointer-events-none z-50 opacity-0"></div>
+
+    <!-- Header & Navigation -->
+    <header class="max-w-6xl w-full mx-auto bg-slate-900 border-2 border-slate-700 rounded-2xl p-3 sm:p-4 mb-3 flex flex-col sm:flex-row justify-between items-center shadow-2xl gap-3">
+        <div class="flex items-center gap-3">
+            <span class="text-3xl sm:text-5xl">⚔️</span>
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-black text-amber-400 font-pixel tracking-wide flex items-center gap-2">
+                    퀴즈 용사 호마맨 <span class="text-sm px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-sans">수능 영단어 RPG</span>
+                </h1>
+                <p class="text-sm text-slate-400 mt-0.5">단어 퀴즈를 풀고 100종 원작 고증 전설 스킬과 낭만 장비로 호마맨을 육성하라!</p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 items-center justify-end">
+            <!-- Audio Player Controls -->
+            <div class="flex items-center bg-slate-950 border border-amber-500/40 rounded-xl px-2 py-1 gap-1.5 text-xs text-amber-300">
+                <button onclick="toggleBgmPlay()" id="bgmToggleBtn" class="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold flex items-center gap-1 touch-manipulation">
+                    <i class="fa-solid fa-music"></i> <span id="bgmStateText">BGM 켜기</span>
+                </button>
+                <select id="bgmSelectDropdown" onchange="changeEquippedBgm(this.value)" class="bg-slate-900 border border-slate-700 text-xs font-bold text-slate-200 rounded-lg p-1 focus:outline-none max-w-[130px] sm:max-w-none">
+                    <!-- Dynamic BGM Options -->
+                </select>
+            </div>
+
+            <!-- Text Size Controls -->
+            <div class="flex items-center bg-slate-950 border border-slate-700 rounded-xl px-2 py-1 gap-1 text-xs">
+                <span class="text-slate-400 font-bold mr-1"><i class="fa-solid fa-text-height"></i> 글씨:</span>
+                <button onclick="changeFontSize('small')" id="fontBtn-small" class="px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-300">작게</button>
+                <button onclick="changeFontSize('medium')" id="fontBtn-medium" class="px-2 py-0.5 rounded font-bold bg-amber-600 text-white">보통</button>
+                <button onclick="changeFontSize('large')" id="fontBtn-large" class="px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-300">크게</button>
+            </div>
+
+            <button onclick="openShopModal()" class="pixel-btn bg-amber-600 hover:bg-amber-500 text-white text-sm px-3.5 py-2 rounded-xl border-b-4 border-amber-800 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-store"></i> 낭만 상점
+            </button>
+            <button onclick="openSkillListModal()" class="pixel-btn bg-purple-700 hover:bg-purple-600 text-white text-sm px-3.5 py-2 rounded-xl border-b-4 border-purple-900 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 스킬 도감 (100종)
+            </button>
+            <button onclick="openCustomWordModal()" class="pixel-btn bg-emerald-600 hover:bg-emerald-500 text-white text-sm px-3.5 py-2 rounded-xl border-b-4 border-emerald-800 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-book-medical"></i> 단어 편집
+            </button>
+            <button onclick="openGuideModal()" class="pixel-btn bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-3.5 py-2 rounded-xl border-b-4 border-indigo-800 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-file-code"></i> 가이드
+            </button>
+            <button onclick="resetGameProgress()" class="pixel-btn bg-rose-800 hover:bg-rose-700 text-white text-sm px-3 py-2 rounded-xl border-b-4 border-rose-950 font-bold" title="초기화">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-12 gap-3 flex-1 mb-3">
+
+        <!-- Left Column: Homaman Hero Dashboard (4 cols) -->
+        <section class="md:col-span-4 bg-slate-900 border-2 border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
+            <div>
+                <!-- Hero Portrait & Level -->
+                <div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-800">
+                    <div class="relative w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-tr from-amber-600 via-yellow-500 to-amber-300 rounded-2xl flex items-center justify-center border-2 border-amber-300 shadow-lg shrink-0">
+                        <span id="heroAvatar" class="text-4xl sm:text-5xl animate-hero">👨‍🦲</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-amber-400 font-black text-xl font-pixel">호마맨</span>
+                            <span id="levelBadge" class="bg-amber-500/20 text-amber-300 text-sm px-2 py-0.5 rounded-md border border-amber-500/40 font-pixel">Lv.1</span>
+                        </div>
+                        <p id="heroTitle" class="text-sm text-slate-400 mt-0.5">수능 영단어 격파자</p>
+                        <!-- Total Attack Power Display -->
+                        <div class="mt-1.5 inline-flex items-center gap-1 bg-amber-950/80 border border-amber-500/60 px-2.5 py-1 rounded-lg text-sm font-black text-amber-300">
+                            ⚔️ 총 공격력: <span id="totalAtkVal" class="text-amber-400 font-pixel text-base">10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Buff Status UI Box -->
+                <div class="bg-slate-950/80 border border-indigo-500/30 rounded-xl p-3 mb-3">
+                    <div class="text-xs font-bold text-indigo-300 mb-1.5 flex items-center justify-between">
+                        <span><i class="fa-solid fa-bolt"></i> 현재 적용 버프</span>
+                        <span class="text-xs text-slate-500">턴 경과 시 차감</span>
+                    </div>
+                    <div id="activeBuffBadges" class="flex flex-wrap gap-1.5 min-h-[28px]">
+                        <span class="text-xs text-slate-500 italic">적용 중인 버프 없음</span>
+                    </div>
+                </div>
+
+                <!-- HP / EXP Bars -->
+                <div class="space-y-2.5 mb-4 text-sm font-bold">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-rose-400 flex items-center gap-1"><i class="fa-solid fa-heart"></i> 체력 (HP)</span>
+                            <span id="hpText" class="text-slate-300 font-pixel text-base">100 / 100</span>
+                        </div>
+                        <div class="w-full bg-slate-950 rounded-full h-3.5 border border-slate-800 overflow-hidden p-0.5">
+                            <div id="hpBar" class="bg-rose-500 h-full rounded-full transition-all duration-300" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-star"></i> 경험치 (EXP)</span>
+                            <span id="expText" class="text-slate-300 font-pixel text-base">0 / 50</span>
+                        </div>
+                        <div class="w-full bg-slate-950 rounded-full h-3.5 border border-slate-800 overflow-hidden p-0.5">
+                            <div id="expBar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Stat Investment Panel -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 mb-3 space-y-2">
+                    <div class="flex justify-between items-center text-sm border-b border-slate-800 pb-2">
+                        <span class="font-bold text-slate-300"><i class="fa-solid fa-chart-line"></i> 능력치 (스텟)</span>
+                        <span class="text-amber-400 font-black font-pixel text-base">포인트: <span id="statPointsVal">0</span></span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs sm:text-sm">
+                        <div class="bg-slate-900 p-2 sm:p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <span class="text-slate-400 block text-xs">기본 공격력 (STR)</span>
+                                <span id="strVal" class="text-amber-300 font-bold font-pixel text-base">10</span>
+                            </div>
+                            <button onclick="addStat('str')" class="w-7 h-7 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-sm font-pixel">+</button>
+                        </div>
+                        <div class="bg-slate-900 p-2 sm:p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <span class="text-slate-400 block text-xs">치명타율 (DEX)</span>
+                                <span id="dexVal" class="text-amber-300 font-bold font-pixel text-base">5%</span>
+                            </div>
+                            <button onclick="addStat('dex')" class="w-7 h-7 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-sm font-pixel">+</button>
+                        </div>
+                        <div class="bg-slate-900 p-2 sm:p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <span class="text-slate-400 block text-xs">최대 체력 (VIT)</span>
+                                <span id="vitVal" class="text-amber-300 font-bold font-pixel text-base">100</span>
+                            </div>
+                            <button onclick="addStat('vit')" class="w-7 h-7 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-sm font-pixel">+</button>
+                        </div>
+                        <div class="bg-slate-900 p-2 sm:p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <span class="text-slate-400 block text-xs">스킬 증폭 (INT)</span>
+                                <span id="intVal" class="text-amber-300 font-bold font-pixel text-base">100%</span>
+                            </div>
+                            <button onclick="addStat('int')" class="w-7 h-7 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-sm font-pixel">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unlocked Skill Quick View Panel -->
+                <div class="bg-slate-950/80 border border-purple-500/30 rounded-xl p-3 mb-3">
+                    <div class="text-xs font-bold text-purple-300 mb-1.5 flex items-center justify-between">
+                        <span><i class="fa-solid fa-wand-magic-sparkles"></i> 보유 발동 스킬</span>
+                        <span id="skillCountText" class="text-xs text-purple-400 font-pixel">5종 해금</span>
+                    </div>
+                    <div id="quickSkillList" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto custom-scrollbar"></div>
+                </div>
+            </div>
+
+            <!-- Quick Inventory & Customization Summary -->
+            <div class="pt-2 border-t border-slate-800">
+                <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-xs font-bold text-slate-400"><i class="fa-solid fa-palette"></i> 장비 & 커스텀 스타일</span>
+                    <button onclick="openShopModal()" class="text-xs text-amber-400 hover:underline">상점 바로가기 ➔</button>
+                </div>
+                <div id="equippedItemsList" class="flex flex-wrap gap-1 max-h-20 overflow-y-auto custom-scrollbar pr-1"></div>
+            </div>
+        </section>
+
+        <!-- Right Column: Battle Stage & Word Quiz Panel (8 cols) -->
+        <section class="md:col-span-8 flex flex-col gap-3">
+            
+            <!-- Battle Field Area -->
+            <div id="battleScreen" class="bg-slate-900 border-2 border-slate-700 rounded-2xl p-4 flex flex-col justify-between min-h-[240px] relative overflow-hidden shadow-xl transition-all duration-500">
+                <!-- Background Dynamic Overlay -->
+                <div id="battleBgOverlay" class="absolute inset-0 bg-gradient-to-b from-indigo-950/20 via-transparent to-slate-950/80 pointer-events-none transition-all duration-500"></div>
+
+                <!-- Stage Header Info -->
+                <div class="flex justify-between items-center relative z-10">
+                    <div class="bg-slate-950/80 border border-slate-800 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
+                        <i class="fa-solid fa-map-pin text-rose-500 text-sm"></i>
+                        <span class="text-xs sm:text-sm text-slate-400 font-bold">월드 스테이지:</span>
+                        <span id="stageDisplay" class="text-amber-400 font-black font-pixel text-base sm:text-lg">1-1</span>
+                    </div>
+                    <div class="flex items-center gap-3 bg-slate-950/80 border border-slate-800 px-3.5 py-1.5 rounded-xl">
+                        <span id="goldVal" class="text-xs sm:text-sm font-black text-amber-400 font-pixel text-base">💰 0</span>
+                        <span class="text-slate-700">|</span>
+                        <span id="comboVal" class="text-xs sm:text-sm font-black text-indigo-400 font-pixel text-base">0 COMBO</span>
+                    </div>
+                </div>
+
+                <!-- Battle Animation Field (Hero vs Mobs) -->
+                <div class="my-4 flex justify-between items-end px-4 sm:px-8 relative z-10">
+                    <!-- Hero Avatar Sprite -->
+                    <div id="heroSprite" class="flex flex-col items-center">
+                        <span class="text-6xl sm:text-7xl drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]">👨‍🦲</span>
+                        <span class="bg-slate-950/90 text-amber-300 border border-amber-500/50 text-xs font-bold px-2.5 py-0.5 rounded-full mt-1 font-pixel">호마맨</span>
+                    </div>
+
+                    <!-- Skill Visual FX Popup -->
+                    <div id="skillFxContainer" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-center hidden">
+                        <div id="skillFxText" class="text-2xl sm:text-3xl font-black text-amber-300 drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] animate-bounce font-pixel bg-slate-950/90 px-5 py-2.5 rounded-2xl border-2 border-amber-400">
+                            ✨ 스킬 발동!
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Enemy Mobs Wave Container -->
+                    <div id="mobContainer" class="flex items-end gap-2 sm:gap-4">
+                        <!-- Dynamic Mob Nodes -->
+                    </div>
+                </div>
+
+                <!-- Battle Log Console -->
+                <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 text-xs sm:text-sm h-16 overflow-y-auto custom-scrollbar relative z-10">
+                    <p id="battleLogText" class="text-slate-300 font-mono">⚔️ 수능 영단어 퀴즈 마을에 오신 것을 환영합니다! 문제를 맞춰 스킬을 난사해 보세요.</p>
+                </div>
+            </div>
+
+            <!-- Word Quiz Interactive Console -->
+            <div class="bg-slate-900 border-2 border-slate-700 rounded-2xl p-4 sm:p-5 shadow-xl flex-1 flex flex-col justify-between">
+                <div>
+                    <!-- Quiz Header Badge -->
+                    <div class="flex justify-between items-center mb-3">
+                        <span id="quizTypeBadge" class="bg-indigo-900/60 text-indigo-300 border border-indigo-500/40 text-xs sm:text-sm px-3 py-1 rounded-lg font-bold">
+                            📖 수능 영단어 3지선다 퀴즈
+                        </span>
+                        <span id="quizCounter" class="text-xs sm:text-sm text-slate-400 font-mono">단어 라이브러리 준비 중...</span>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 sm:p-7 text-center mb-4 shadow-inner">
+                        <p class="text-xs sm:text-sm text-slate-400 mb-1.5">알맞은 정답을 선택하여 스킬을 발동하세요!</p>
+                        <h2 id="quizQuestion" class="text-3xl sm:text-4xl font-black text-amber-400 tracking-wide font-pixel">
+                            abandon
+                        </h2>
+                    </div>
+
+                    <!-- 3-Choice Options Grid -->
+                    <div id="quizOptions" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
+                        <!-- Dynamic Option Buttons -->
+                    </div>
+                </div>
+
+                <!-- Footer Tips -->
+                <p class="text-xs text-slate-400 text-center mt-3">
+                    💡 퀴즈 정답 시 100종의 해금 스킬 중 하나가 무작위로 발동하여 몬스터 무리를 공격합니다!
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal 1: 100 Skills Encyclopedia Modal -->
+    <div id="skillModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
+        <div class="bg-slate-900 border-2 border-purple-500 rounded-2xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-800 mb-3">
+                <h3 class="text-xl font-black text-purple-300 flex items-center gap-2 font-pixel">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> 호마맨의 100종 명작 원작 고증 스킬 도감
+                </h3>
+                <button onclick="closeSkillListModal()" class="text-slate-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 mb-3">레벨업을 달성하면 명작 애니/게임(원피스, 원펀맨, 메이플스토리, 스타크래프트, 해리포터, LoL)의 100가지 정식 고증 스킬이 자동 해금됩니다.</p>
+            <div id="skillListContainer" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+                <!-- Dynamic Skill Cards -->
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800 text-right">
+                <button onclick="closeSkillListModal()" class="pixel-btn px-5 py-2 bg-purple-700 hover:bg-purple-600 text-white text-sm font-bold rounded-xl border-b-4 border-purple-900 font-pixel">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Romantic Shop Modal -->
+    <div id="shopModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
+        <div class="bg-slate-900 border-2 border-amber-500 rounded-2xl max-w-2xl w-full p-4 sm:p-5 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-800 mb-3">
+                <h3 class="text-xl font-black text-amber-400 flex items-center gap-2 font-pixel">
+                    <i class="fa-solid fa-store"></i> 호마맨의 낭만 상점
+                </h3>
+                <button onclick="closeShopModal()" class="text-slate-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- Shop Tab Bar -->
+            <div class="flex flex-wrap gap-1.5 mb-3 border-b border-slate-800 pb-2">
+                <button onclick="switchShopTab('items')" id="tabBtn-items" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-amber-600 text-white">⚔️ 무기 & 소모품</button>
+                <button onclick="switchShopTab('bgms')" id="tabBtn-bgms" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-400 hover:text-white">🎵 BGM 상점</button>
+                <button onclick="switchShopTab('fonts')" id="tabBtn-fonts" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-400 hover:text-white">🔤 글꼴 상점</button>
+                <button onclick="switchShopTab('bgs')" id="tabBtn-bgs" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-400 hover:text-white">🖼️ 전장 테마</button>
+            </div>
+
+            <div class="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-800 mb-3">
+                <span class="text-xs sm:text-sm text-slate-300 font-bold">내 보유 골드: <span id="shopGoldVal" class="text-amber-400 font-black font-pixel text-base">💰 0</span></span>
+                <span class="text-xs text-slate-400">골드로 다양한 BGM, 장비, 글꼴, 테마를 구입하세요!</span>
+            </div>
+            <div id="shopItemList" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+                <!-- Dynamic Shop Item Cards -->
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-800 text-right">
+                <button onclick="closeShopModal()" class="pixel-btn px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold rounded-xl border-b-4 border-amber-800 font-pixel">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Custom Word Editor Modal -->
+    <div id="customWordModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
+        <div class="bg-slate-900 border-2 border-emerald-500 rounded-2xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-800 mb-3">
+                <h3 class="text-xl font-black text-emerald-400 flex items-center gap-2 font-pixel">
+                    <i class="fa-solid fa-book-medical"></i> 커스텀 수능 단어장 편집
+                </h3>
+                <button onclick="closeCustomWordModal()" class="text-slate-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 mb-2">원하시는 수능 영단어 목록 JSON을 자유롭게 아래 창에 붙여넣으세요.</p>
+            <textarea id="customWordInput" class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs sm:text-sm font-mono text-emerald-300 focus:outline-none focus:border-emerald-500 custom-scrollbar resize-none mb-3 min-h-[220px]" placeholder='[&#10;  { "word": "abandon", "meaning": "버리다, 포기하다" }&#10;]'></textarea>
+            <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                <button onclick="loadDefaultWords()" class="text-xs sm:text-sm text-amber-400 hover:underline">기본 샘플 단어 복원</button>
+                <div class="flex gap-2">
+                    <button onclick="closeCustomWordModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs sm:text-sm font-bold rounded-xl">취소</button>
+                    <button onclick="saveCustomWords()" class="pixel-btn px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold rounded-xl border-b-4 border-emerald-800 font-pixel">단어 저장하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Format Guide Modal -->
+    <div id="guideModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
+        <div class="bg-slate-900 border-2 border-indigo-500 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-800 mb-3">
+                <h3 class="text-xl font-black text-indigo-300 flex items-center gap-2 font-pixel">
+                    <i class="fa-solid fa-file-code"></i> AI 메모장 포맷 가이드
+                </h3>
+                <button onclick="closeGuideModal()" class="text-slate-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="text-xs sm:text-sm text-slate-300 space-y-3 leading-relaxed">
+                <p>Gemini나 ChatGPT에 아래 프롬프트를 입력하면 게임용 단어 목록을 쉽게 받을 수 있습니다.</p>
+                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 font-mono text-indigo-300 select-all">
+                    "수능 영단어 100개를 [ { "word": "단어", "meaning": "뜻" } ] JSON 포맷으로 만들어줘."
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800 text-right">
+                <button onclick="closeGuideModal()" class="pixel-btn px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-bold rounded-xl border-b-4 border-indigo-800 font-pixel">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Script Logic -->
+    <script>
+        /* Compact Starter Words - User requested empty space to add custom words easily */
+        const defaultWords = [
+  { "word": "abandon", "meaning": "버리다, 포기하다" },
+  { "word": "adequate", "meaning": "적절한, 충분한" },
+  { "word": "beneficial", "meaning": "유익한, 이로운" },
+  { "word": "abundant", "meaning": "풍부한" },
+  { "word": "accumulate", "meaning": "축적하다, 모으다" },
+  { "word": "accurate", "meaning": "정확한" },
+  { "word": "acquire", "meaning": "습득하다, 얻다" },
+  { "word": "adapt", "meaning": "적응하다, 맞추다" },
+  { "word": "advocate", "meaning": "지지하다, 옹호자" },
+  { "word": "alter", "meaning": "바꾸다, 변하다" },
+  { "word": "ambiguous", "meaning": "모호한, 애매한" },
+  { "word": "analyze", "meaning": "분석하다" },
+  { "word": "anticipate", "meaning": "예상하다, 기대하다" },
+  { "word": "apparent", "meaning": "명백한, 겉보기의" },
+  { "word": "appreciate", "meaning": "감사하다, 이해하다, 가치를 인정하다" },
+  { "word": "approach", "meaning": "접근하다, 접근법" },
+  { "word": "approximate", "meaning": "대략의, 가깝다" },
+  { "word": "artificial", "meaning": "인공의, 인위적인" },
+  { "word": "aspect", "meaning": "측면, 양상" },
+  { "word": "assert", "meaning": "주장하다, 단언하다" },
+  { "word": "assess", "meaning": "평가하다" },
+  { "word": "assign", "meaning": "할당하다, 배정하다" },
+  { "word": "assume", "meaning": "가정하다, 맡다" },
+  { "word": "attain", "meaning": "달성하다, 도달하다" },
+  { "word": "attitude", "meaning": "태도, 자세" },
+  { "word": "attribute", "meaning": "속성, ~의 탓으로 돌리다" },
+  { "word": "authoritative", "meaning": "권위 있는" },
+  { "word": "authority", "meaning": "권위, 당국" },
+  { "word": "available", "meaning": "이용 가능한" },
+  { "word": "aware", "meaning": "인식하고 있는" },
+  { "word": "bias", "meaning": "편견, 편향" },
+  { "word": "capacity", "meaning": "수용력, 능력" },
+  { "word": "category", "meaning": "범주, 카테고리" },
+  { "word": "challenge", "meaning": "도전, 과제, 이의를 제기하다" },
+  { "word": "chronic", "meaning": "만성적인" },
+  { "word": "clarify", "meaning": "명확하게 하다" },
+  { "word": "cognitive", "meaning": "인지의" },
+  { "word": "coincide", "meaning": "일치하다, 동시에 일어나다" },
+  { "word": "collaborate", "meaning": "협력하다" },
+  { "word": "commit", "meaning": "전념하다, 저지르다" },
+  { "word": "commodity", "meaning": "상품, 원자재" },
+  { "word": "compelling", "meaning": "설득력 있는, 강렬한" },
+  { "word": "compensate", "meaning": "보상하다, 보완하다" },
+  { "word": "competence", "meaning": "역량, 능력" },
+  { "word": "complement", "meaning": "보완하다, 보충물" },
+  { "word": "comply", "meaning": "따르다, 준수하다" },
+  { "word": "component", "meaning": "구성 요소" },
+  { "word": "comprehend", "meaning": "이해하다, 파악하다" },
+  { "word": "conceal", "meaning": "감추다, 숨기다" },
+  { "word": "concede", "meaning": "인정하다, 양보하다" },
+  { "word": "concentrate", "meaning": "집중하다" },
+  { "word": "concept", "meaning": "개념" },
+  { "word": "conclude", "meaning": "결론을 내리다" },
+  { "word": "conduct", "meaning": "수행하다, 지휘하다, 행위" },
+  { "word": "confirm", "meaning": "확인하다, 확정하다" },
+  { "word": "conflict", "meaning": "갈등, 충돌하다" },
+  { "word": "conform", "meaning": "순응하다, 따르다" },
+  { "word": "consequence", "meaning": "결과, 중요성" },
+  { "word": "considerable", "meaning": "상당한" },
+  { "word": "consistent", "meaning": "일관된" },
+  { "word": "constant", "meaning": "끊임없는, 불변의" },
+  { "word": "constitute", "meaning": "구성하다, 설립하다" },
+  { "word": "constrain", "meaning": "제약하다, 강요하다" },
+  { "word": "construct", "meaning": "건설하다, 구성하다" },
+  { "word": "consume", "meaning": "소비하다, 먹다" },
+  { "word": "contemporary", "meaning": "현대의, 동시대의" },
+  { "word": "contribute", "meaning": "기여하다, 기부하다" },
+  { "word": "controversy", "meaning": "논란, 논쟁" },
+  { "word": "convey", "meaning": "전달하다, 나르다" },
+  { "word": "convince", "meaning": "설득하다, 확신시키다" },
+  { "word": "crucial", "meaning": "중대한, 결정적인" },
+  { "word": "decline", "meaning": "감소하다, 거절하다" },
+  { "word": "dedicate", "meaning": "바치다, 헌신하다" },
+  { "word": "defend", "meaning": "방어하다, 옹호하다" },
+  { "word": "deficit", "meaning": "적자, 부족" },
+  { "word": "define", "meaning": "정의하다" },
+  { "word": "demonstrate", "meaning": "입증하다, 시연하다" },
+  { "word": "deny", "meaning": "부인하다, 거절하다" },
+  { "word": "depict", "meaning": "묘사하다, 그리다" },
+  { "word": "deprive", "meaning": "빼앗다, 박탈하다" },
+  { "word": "derive", "meaning": "끌어내다, 유래하다" },
+  { "word": "desirable", "meaning": "바람직한" },
+  { "word": "detect", "meaning": "감지하다, 발견하다" },
+  { "word": "deteriorate", "meaning": "악화되다" },
+  { "word": "determine", "meaning": "결정하다, 알아내다" },
+  { "word": "devise", "meaning": "고안하다, 창안하다" },
+  { "word": "differentiate", "meaning": "구별하다, 차별화하다" },
+  { "word": "diminish", "meaning": "줄어들다, 폄하하다" },
+  { "word": "disrupt", "meaning": "방해하다, 지장을 주다" },
+  { "word": "distinguish", "meaning": "구별하다" },
+  { "word": "distort", "meaning": "왜곡하다" },
+  { "word": "diverse", "meaning": "다양한" },
+  { "word": "dominant", "meaning": "지배적인, 우세한" },
+  { "word": "dramatic", "meaning": "극적인, 극심한" },
+  { "word": "drastic", "meaning": "과감한, 급격한" },
+  { "word": "durable", "meaning": "내구성이 있는, 오래가는" },
+  { "word": "eager", "meaning": "열망하는, 열심인" },
+  { "word": "economic", "meaning": "경제의" },
+  { "word": "elaborate", "meaning": "정교한, 정성들여 만들다" },
+  { "word": "eliminate", "meaning": "제거하다, 없애다" },
+  { "word": "emerge", "meaning": "부상하다, 나타나다" },
+  { "word": "emphasize", "meaning": "강조하다" },
+  { "word": "empirical", "meaning": "실증적인, 경험에 의한" },
+  { "word": "encounter", "meaning": "직면하다, 마주치다" },
+  { "word": "enhance", "meaning": "향상시키다, 높이다" },
+  { "word": "enormous", "meaning": "거대한, 엄청난" },
+  { "word": "ensure", "meaning": "보장하다, 확실하게 하다" },
+  { "word": "enterprise", "meaning": "기업, 사업" },
+  { "word": "entitle", "meaning": "자격을 부여하다, 제목을 붙이다" },
+  { "word": "equivalent", "meaning": "동등한, 상당하는 것" },
+  { "word": "essential", "meaning": "필수적인, 본질적인" },
+  { "word": "establish", "meaning": "설립하다, 확립하다" },
+  { "word": "estimate", "meaning": "추정하다, 견적" },
+  { "word": "ethical", "meaning": "윤리적인, 도덕적인" },
+  { "word": "evaluate", "meaning": "평가하다" },
+  { "word": "evident", "meaning": "명백한, 분명한" },
+  { "word": "evolution", "meaning": "진화, 발전" },
+  { "word": "exaggerate", "meaning": "과장하다" },
+  { "word": "exceed", "meaning": "초과하다, 능가하다" },
+  { "word": "excessive", "meaning": "과도한, 지나친" },
+  { "word": "exclude", "meaning": "제외하다, 배제하다" },
+  { "word": "exhibit", "meaning": "전시하다, 보여주다" },
+  { "word": "expand", "meaning": "확장하다, 팽창하다" },
+  { "word": "explicit", "meaning": "명시적인, 노골적인" },
+  { "word": "exploit", "meaning": "착취하다, 활용하다" },
+  { "word": "exposure", "meaning": "노출, 폭로" },
+  { "word": "extent", "meaning": "정도, 범위" },
+  { "word": "extinguish", "meaning": "끄다, 소멸시키다" },
+  { "word": "facilitate", "meaning": "용이하게 하다, 촉진하다" },
+  { "word": "factor", "meaning": "요인, 요소" },
+  { "word": "feasible", "meaning": "실현 가능한" },
+  { "word": "fluctuate", "meaning": "변동하다, 요동치다" },
+  { "word": "foster", "meaning": "육성하다, 촉진하다" },
+  { "word": "fundamental", "meaning": "근본적인, 핵심적인" },
+  { "word": "generate", "meaning": "생성하다, 발생시키다" },
+  { "word": "genuine", "meaning": "진짜의, 순수한" },
+  { "word": "guarantee", "meaning": "보장하다, 보증" },
+  { "word": "hierarchy", "meaning": "계급, 위계" },
+  { "word": "hypothesis", "meaning": "가설" },
+  { "word": "identify", "meaning": "확인하다, 식별하다" },
+  { "word": "illuminate", "meaning": "밝히다, 계몽하다" },
+  { "word": "illustrate", "meaning": "설명하다, 삽화를 넣다" },
+  { "word": "impact", "meaning": "영향, 충격" },
+  { "word": "implement", "meaning": "실행하다, 도구" },
+  { "word": "imply", "meaning": "암시하다, 의미하다" },
+  { "word": "impose", "meaning": "부과하다, 강요하다" },
+  { "word": "incentive", "meaning": "동기, 자극, 보상" },
+  { "word": "incorporate", "meaning": "포함하다, 통합하다" },
+  { "word": "indicate", "meaning": "나타내다, 지적하다" },
+  { "word": "indispensable", "meaning": "없어서는 안 될, 필수적인" },
+  { "word": "induce", "meaning": "유도하다, 유발하다" },
+  { "word": "inevitable", "meaning": "불가피한, 필연적인" },
+  { "word": "infer", "meaning": "추론하다" },
+  { "word": "inherent", "meaning": "내재된, 고유한" },
+  { "word": "inhibit", "meaning": "억제하다, 방해하다" },
+  { "word": "initial", "meaning": "처음의, 초기의" },
+  { "word": "initiative", "meaning": "주도권, 솔선, 이니셔티브" },
+  { "word": "innovative", "meaning": "혁신적인" },
+  { "word": "insight", "meaning": "통찰력" },
+  { "word": "inspire", "meaning": "영감을 주다, 고무하다" },
+  { "word": "integrate", "meaning": "통합하다" },
+  { "word": "intense", "meaning": "강렬한, 극심한" },
+  { "word": "interpret", "meaning": "해석하다, 통역하다" },
+  { "word": "intervene", "meaning": "개입하다, 중재하다" },
+  { "word": "intrinsic", "meaning": "본질적인, 고유한" },
+  { "word": "investigate", "meaning": "조사하다, 수사하다" },
+  { "word": "justify", "meaning": "정당화하다" },
+  { "word": "legitimate", "meaning": "합법적인, 정당한" },
+  { "word": "maintain", "meaning": "유지하다, 주장하다" },
+  { "word": "manifest", "meaning": "명백한, 나타내다" },
+  { "word": "manipulate", "meaning": "조작하다, 다루다" },
+  { "word": "modify", "meaning": "수정하다, 변경하다" },
+  { "word": "mutual", "meaning": "상호 간의, 공통의" },
+  { "word": "neglect", "meaning": "방치하다, 소홀히 하다" },
+  { "word": "notion", "meaning": "개념, 관념" },
+  { "word": "objective", "meaning": "객관적인, 목표" },
+  { "word": "obtain", "meaning": "획득하다, 얻다" },
+  { "word": "obvious", "meaning": "분명한, 명백한" },
+  { "word": "perceive", "meaning": "인지하다, 감지하다" },
+  { "word": "persist", "meaning": "지속되다, 고집하다" },
+  { "word": "perspective", "meaning": "관점, 시각" },
+  { "word": "phenomenon", "meaning": "현상" },
+  { "word": "plausible", "meaning": "타당한 것 같은, 그럴듯한" },
+  { "word": "potential", "meaning": "잠재적인, 가능성" },
+  { "word": "pragmatic", "meaning": "실용적인" },
+  { "word": "precede", "meaning": "선행하다, 앞서다" },
+  { "word": "precise", "meaning": "정밀한, 정확한" },
+  { "word": "predominant", "meaning": "지배적인, 주된" },
+  { "word": "preserve", "meaning": "보존하다, 지키다" },
+  { "word": "prevalent", "meaning": "일반적인, 널리 퍼진" },
+  { "word": "prior", "meaning": "이전의, 우선하는" },
+  { "word": "profound", "meaning": "깊은, 심오한" },
+  { "word": "prominent", "meaning": "두드러진, 유명한" },
+  { "word": "promote", "meaning": "홍보하다, 승진시키다, 촉진하다" },
+  { "word": "proportion", "meaning": "비율, 부분" },
+  { "word": "propose", "meaning": "제안하다" },
+  { "word": "prospect", "meaning": "전망, 가망" },
+  { "word": "reinforce", "meaning": "강화하다, 보강하다" },
+  { "word": "relevant", "meaning": "관련된, 적절한" },
+  { "word": "reluctant", "meaning": "꺼리는, 마지못해 하는" },
+  { "word": "remarkable", "meaning": "놀라운, 주목할 만한" },
+  { "word": "require", "meaning": "요구하다, 필요로 하다" },
+  { "word": "resemble", "meaning": "닮다, 유사하다" },
+  { "word": "resolve", "meaning": "해결하다, 결심하다" },
+  { "word": "retain", "meaning": "보유하다, 유지하다" },
+  { "word": "reveal", "meaning": "드러내다, 폭로하다" },
+  { "word": "simultaneous", "meaning": "동시의" },
+  { "word": "stimulate", "meaning": "자극하다, 격려하다" },
+  { "word": "subsequent", "meaning": "그 다음의, 차후의" },
+  { "word": "substantial", "meaning": "상당한, 실질적인" },
+  { "word": "substitute", "meaning": "대체하다, 대용품" },
+  { "word": "sufficient", "meaning": "충분한" },
+  { "word": "sustain", "meaning": "유지하다, 지탱하다" },
+  { "word": "transform", "meaning": "변형시키다, 바꾸다" },
+  { "word": "ultimate", "meaning": "궁극적인, 최후의" },
+  { "word": "undergo", "meaning": "겪다, 받다" },
+  { "word": "undertake", "meaning": "맡다, 착수하다" },
+  { "word": "utilize", "meaning": "활용하다, 이용하다" },
+  { "word": "valid", "meaning": "유효한, 타당한" },
+  { "word": "vary", "meaning": "다르다, 변하다" },
+  { "word": "yield", "meaning": "산출하다, 양보하다, 굴복하다" },
+  { "word": "aberration", "meaning": "탈선, 일탈" },
+  { "word": "abide", "meaning": "머물다, 따르다" },
+  { "word": "abolish", "meaning": "폐지하다" },
+  { "word": "abstain", "meaning": "삼가다, 기권하다" },
+  { "word": "abstract", "meaning": "추상적인, 개요" },
+  { "word": "absurd", "meaning": "터무니없는, 불합리한" },
+  { "word": "accentuate", "meaning": "강조하다, 두드러지게 하다" },
+  { "word": "acclaim", "meaning": "칭송하다, 환호" },
+  { "word": "accomplice", "meaning": "공범" },
+  { "word": "accord", "meaning": "합의, 일치하다" },
+  { "word": "acknowledge", "meaning": "인정하다, 승인하다" },
+  { "word": "acquaintance", "meaning": "아는 사람, 지식" },
+  { "word": "acute", "meaning": "극심한, 예리한" },
+  { "word": "adhere", "meaning": "고수하다, 들러붙다" },
+  { "word": "adverse", "meaning": "부정적인, 불리한" },
+  { "word": "affiliate", "meaning": "제휴하다, 계열사" },
+  { "word": "affinity", "meaning": "친밀감, 유사성" },
+  { "word": "afflict", "meaning": "괴롭히다" },
+  { "word": "affluent", "meaning": "부유한, 풍족한" },
+  { "word": "aggregate", "meaning": "합계, 집합체" },
+  { "word": "agitate", "meaning": "선동하다, 흔들다" },
+  { "word": "alienate", "meaning": "소외시키다" },
+  { "word": "alleviate", "meaning": "완화하다, 경감하다" },
+  { "word": "allocate", "meaning": "할당하다, 배분하다" },
+  { "word": "allude", "meaning": "암시하다, 언급하다" },
+  { "word": "altruism", "meaning": "이타주의" },
+  { "word": "ambivalence", "meaning": "양가감정, 반대 감정 양립" },
+  { "word": "amend", "meaning": "개정하다, 수정하다" },
+  { "word": "ample", "meaning": "충분한, 넓은" },
+  { "word": "analogy", "meaning": "비유, 유사점" },
+  { "word": "anonymous", "meaning": "익명의" },
+  { "word": "appall", "meaning": "섬뜩하게 하다, 놀라게 하다" },
+  { "word": "apprehend", "meaning": "체포하다, 파악하다" },
+  { "word": "arbitrary", "meaning": "임의의, 독단적인" },
+  { "word": "archive", "meaning": "기록 보관소" },
+  { "word": "arduous", "meaning": "몹시 힘든, 고된" },
+  { "word": "articulate", "meaning": "분명히 표현하다" },
+  { "word": "aspiration", "meaning": "열망, 포부" },
+  { "word": "assimilate", "meaning": "동화되다, 흡수하다" },
+  { "word": "astute", "meaning": "영악한, 기민한" },
+  { "word": "authentic", "meaning": "진짜의, 신뢰할 만한" },
+  { "word": "autonomous", "meaning": "자율적인, 자치의" },
+  { "word": "avert", "meaning": "방지하다, 피하다" },
+  { "word": "bewilder", "meaning": "어리둥절하게 하다" },
+  { "word": "bizarre", "meaning": "기괴한, 별난" },
+  { "word": "blatant", "meaning": "노골적인, 뻔뻔한" },
+  { "word": "breach", "meaning": "위반, 위반하다" },
+  { "word": "brittle", "meaning": "부러지기 쉬운, 취약한" },
+  { "word": "candid", "meaning": "솔직한" },
+  { "word": "catalyst", "meaning": "촉매, 계기" },
+  { "word": "catastrophe", "meaning": "참사, 재앙" },
+  { "word": "censor", "meaning": "검열하다" },
+  { "word": "chronological", "meaning": "연대순의" },
+  { "word": "circumvent", "meaning": "우회하다, 피하다" },
+  { "word": "coercion", "meaning": "강제, 강압" },
+  { "word": "cohesive", "meaning": "화합하는, 결속력 있는" },
+  { "word": "colossal", "meaning": "거대한, 엄청난" },
+  { "word": "commence", "meaning": "시작되다" },
+  { "word": "compatible", "meaning": "호환되는, 양립할 수 있는" },
+  { "word": "complicity", "meaning": "공모, 연좌" },
+  { "word": "concise", "meaning": "간결한" },
+  { "word": "condone", "meaning": "용인하다, 묵인하다" },
+  { "word": "conducive", "meaning": "~에 좋은, 이바지하는" },
+  { "word": "confine", "meaning": "제한하다, 가두다" },
+  { "word": "congenital", "meaning": "선천적인" },
+  { "word": "congested", "meaning": "혼잡한, 막힌" },
+  { "word": "conjecture", "meaning": "추측, 추측하다" },
+  { "word": "consecutive", "meaning": "연속적인" },
+  { "word": "consensus", "meaning": "합의, 의견 일치" },
+  { "word": "conspicuous", "meaning": "눈에 띄는, 두드러진" },
+  { "word": "contemplative", "meaning": "사색하는, 명상에 잠긴" },
+  { "word": "contempt", "meaning": "경멸, 멸시" },
+  { "word": "contingent", "meaning": "~에 따라 결정되는, 대표단" },
+  { "word": "cumbersome", "meaning": "크고 성가신, 번거로운" },
+  { "word": "cynical", "meaning": "냉소적인" },
+  { "word": "daunt", "meaning": "겁먹게 하다, 위압하다" },
+  { "word": "dearth", "meaning": "부족, 기근" },
+  { "word": "debris", "meaning": "잔해, 쓰레기" },
+  { "word": "decorum", "meaning": "점잖음, 예의범절" },
+  { "word": "deem", "meaning": "~로 여기다, 생각하다" },
+  { "word": "degrade", "meaning": "비하하다, 저하시키다" },
+  { "word": "deleterious", "meaning": "해로운, 유해한" },
+  { "word": "deliberate", "meaning": "의도적인, 숙고하다" },
+  { "word": "delinquent", "meaning": "비행의, 연체된" },
+  { "word": "demolish", "meaning": "철거하다, 파괴하다" },
+  { "word": "denounce", "meaning": "맹렬히 비난하다" },
+  { "word": "deplete", "meaning": "고갈시키다" },
+  { "word": "deplorable", "meaning": "개탄스러운, 한심한" },
+  { "word": "derogatory", "meaning": "경멸하는, 격하하는" },
+  { "word": "desolate", "meaning": "황량한, 적막한" },
+  { "word": "despise", "meaning": "경멸하다" },
+  { "word": "deter", "meaning": "단념시키다, 저지하다" },
+  { "word": "detrimental", "meaning": "해로운" },
+  { "word": "devastate", "meaning": "황폐화시키다, 큰 충격을 주다" },
+  { "word": "deviate", "meaning": "벗어나다, 일탈하다" },
+  { "word": "devoid", "meaning": "~이 전혀 없는" },
+  { "word": "diligent", "meaning": "근면한, 성실한" },
+  { "word": "dilute", "meaning": "희석하다, 약화시키다" },
+  { "word": "discern", "meaning": "식별하다, 파악하다" },
+  { "word": "discrepancy", "meaning": "불일치, 차이" },
+  { "word": "discreet", "meaning": "신중한, 조심스러운" },
+  { "word": "disdain", "meaning": "경멸, 업신여기다" },
+  { "word": "dismal", "meaning": "음울한, 참담한" },
+  { "word": "disparate", "meaning": "이질적인, 서로 다른" },
+  { "word": "dispel", "meaning": "떨쳐버리다, 없애다" },
+  { "word": "displace", "meaning": "대체하다, 쫓아내다" },
+  { "word": "disseminate", "meaning": "유포하다, 퍼뜨리다" },
+  { "word": "dissent", "meaning": "반대, 반대의견" },
+  { "word": "dissolve", "meaning": "녹이다, 해산시키다" },
+  { "word": "distinct", "meaning": "별개의, 뚜렷한" },
+  { "word": "divert", "meaning": "우회시키다, 주의를 돌리다" },
+  { "word": "dormant", "meaning": "휴면기의, 활동을 중단한" },
+  { "word": "dubious", "meaning": "의심스러운, 의심하는" },
+  { "word": "eccentric", "meaning": "별난, 괴짜의" },
+  { "word": "eclipse", "meaning": "가리다, 빛을 잃게 하다" },
+  { "word": "efficacy", "meaning": "효능, 효험" },
+  { "word": "egregious", "meaning": "지독한, 터무니없는" },
+  { "word": "elicit", "meaning": "끌어내다" },
+  { "word": "elusive", "meaning": "파악하기 힘든, 찾기 힘든" },
+  { "word": "embody", "meaning": "상징하다, 구현하다" },
+  { "word": "eminent", "meaning": "저명한, 탁월한" },
+  { "word": "empathy", "meaning": "공감, 감정이입" },
+  { "word": "encompass", "meaning": "포함하다, 둘러싸다" },
+  { "word": "endorse", "meaning": "지지하다, 보증하다" },
+  { "word": "endure", "meaning": "견디다, 인내하다" },
+  { "word": "enforce", "meaning": "집행하다, 강요하다" },
+  { "word": "engender", "meaning": "낳다, 유발하다" },
+  { "word": "enigmatic", "meaning": "수수께끼 같은, 불가해한" },
+  { "word": "eradicate", "meaning": "근절하다, 뿌리뽑다" },
+  { "word": "erratic", "meaning": "불규칙한, 변덕스러운" },
+  { "word": "erroneous", "meaning": "잘못된, 틀린" },
+  { "word": "erudite", "meaning": "박식한, 학식 있는" },
+  { "word": "esoteric", "meaning": "난해한, 소수만 아는" },
+  { "word": "evade", "meaning": "모면하다, 회피하다" },
+  { "word": "evoke", "meaning": "환기시키다, 떠올려주다" },
+  { "word": "exacerbate", "meaning": "악화시키다" },
+  { "word": "exemplary", "meaning": "모범적인, 전형적인" },
+  { "word": "exempt", "meaning": "면제된, 면제하다" },
+  { "word": "exhaustive", "meaning": "철저한, 소모적인" },
+  { "word": "exonerate", "meaning": "무죄임을 입증하다" },
+  { "word": "expedient", "meaning": "처방, 편의주의적인" },
+  { "word": "expedite", "meaning": "신속히 처리하다" },
+  { "word": "extravagant", "meaning": "낭비하는, 과도한" },
+  { "word": "frugal", "meaning": "검소한, 절약하는" },
+  { "word": "jubilant", "meaning": "환희에 찬" },
+  { "word": "judicious", "meaning": "신중한, 현명한" },
+  { "word": "juxtapose", "meaning": "병치하다, 나란히 놓다" },
+  { "word": "kindle", "meaning": "불을 붙이다, 자극하다" },
+  { "word": "lament", "meaning": "한탄하다, 애통해하다" },
+  { "word": "latent", "meaning": "잠재적인, 숨어있는" },
+  { "word": "lavish", "meaning": "호화로운, 아낌없이 주는" },
+  { "word": "lethargic", "meaning": "무기력한, 둔감한" },
+  { "word": "lucid", "meaning": "명쾌한, 명두한" },
+  { "word": "lucrative", "meaning": "수익성이 좋은" },
+  { "word": "magnanimous", "meaning": "도량이 넓은, 관대한" },
+  { "word": "mandatory", "meaning": "의무적인, 강제적인" },
+  { "word": "mar", "meaning": "손상시키다, 망치다" },
+  { "word": "meticulous", "meaning": "꼼꼼한, 세심한" },
+  { "word": "mitigate", "meaning": "완화시키다, 경감하다" },
+  { "word": "mundane", "meaning": "일상적인, 세속적인" },
+  { "word": "naive", "meaning": "순진한, 순박한" },
+  { "word": "nefarious", "meaning": "비열한, 악랄한" },
+  { "word": "nonchalant", "meaning": "태연한, 무심한" },
+  { "word": "notorious", "meaning": "악명 높은" },
+  { "word": "novel", "meaning": "참신한, 소설" },
+  { "word": "nuance", "meaning": "미묘한 차이" },
+  { "word": "oblivious", "meaning": "의식하지 못하는, 잊고 있는" },
+  { "word": "obscure", "meaning": "모호한, 잘 알려지지 않은" },
+  { "word": "obsolete", "meaning": "구식의, 쓸모없이 된" },
+  { "word": "obstinate", "meaning": "완고한, 완강한" },
+  { "word": "ominous", "meaning": "불길한" },
+  { "word": "opaque", "meaning": "불투명한, 난해한" },
+  { "word": "ostentatious", "meaning": "과시하는, 허세 부리는" },
+  { "word": "paramount", "meaning": "최고의, 가장 중요한" },
+  { "word": "pensive", "meaning": "수심에 찬, 깊은 생각에 잠긴" },
+  { "word": "peremptory", "meaning": "위압적인, 독단적인" },
+  { "word": "perilous", "meaning": "위험한" },
+  { "word": "perpetual", "meaning": "영구적인, 끊임없는" },
+  { "word": "pervasive", "meaning": "만연한, 구석구석 스며드는" },
+  { "word": "pivotal", "meaning": "중추적인, 핵심적인" },
+  { "word": "precarious", "meaning": "위태로운, 불확실한" },
+  { "word": "precocious", "meaning": "조숙한" },
+  { "word": "prodigious", "meaning": "엄청난, 경이로운" },
+  { "word": "proficient", "meaning": "능숙한, 숙달된" },
+  { "word": "prolific", "meaning": "다작의, 다산의" },
+  { "word": "prudent", "meaning": "신중한, 알뜰한" },
+  { "word": "quell", "meaning": "진압하다, 억누르다" },
+  { "word": "radically", "meaning": "근본적으로, 급진적으로" },
+  { "word": "rebuff", "meaning": "퇴짜, 거절하다" },
+  { "word": "reciprocal", "meaning": "상호 간의, 자발적인" },
+  { "word": "reconcile", "meaning": "화해시키다, 조화시키다" },
+  { "word": "redundant", "meaning": "불필요한, 불필요하게 중복된" },
+  { "word": "refute", "meaning": "반박하다" },
+  { "word": "remorse", "meaning": "후회, 자책" },
+  { "word": "renounce", "meaning": "포기하다, 단념하다" },
+  { "word": "reprehensible", "meaning": "비난받아 마땅한" },
+  { "word": "repudiate", "meaning": "거부하다, 부인하다" },
+  { "word": "resilient", "meaning": "회복력 있는, 탄력 있는" },
+  { "word": "resolute", "meaning": "단호한, 확고한" },
+  { "word": "retident", "meaning": "과묵한, 말을 아끼는" },
+  { "word": "revere", "meaning": "숭배하다, 존경하다" },
+  { "word": "rigorous", "meaning": "엄격한, 철저한" },
+  { "word": "scrutinize", "meaning": "면밀히 조사하다" },
+  { "word": "solace", "meaning": "위안, 위로" },
+  { "word": "solitary", "meaning": "고독한, 혼자의" },
+  { "word": "squander", "meaning": "탕진하다, 낭비하다" },
+  { "word": "stagnant", "meaning": "침체된, 고여있는" },
+  { "word": "stringent", "meaning": "엄격한, 긴박한" },
+  { "word": "succinct", "meaning": "간결한" },
+  { "word": "superfluous", "meaning": "여분의, 불필요한" },
+  { "word": "surpass", "meaning": "능가하다, 뛰어넘다" },
+  { "word": "tangible", "meaning": "유형의, 만져서 알 수 있는" },
+  { "word": "tentative", "meaning": "잠정적인, 머뭇거리는" },
+  { "word": "trivial", "meaning": "사소한, 하찮은" },
+  { "word": "unanimous", "meaning": "만장일치의" },
+  { "word": "unprecedented", "meaning": "전례 없는" },
+  { "word": "vehement", "meaning": "격렬한, 열정적인" },
+  { "word": "venerable", "meaning": "존경할 만한" },
+  { "word": "versatile", "meaning": "다재다능한, 다용도의" },
+  { "word": "vindicate", "meaning": "정당함을 입증하다, 혐의를 벗기다" },
+  { "word": "volatile", "meaning": "휘발성의, 변덕스러운" },
+  { "word": "zealous", "meaning": "열성적인, 열심인" },
+  { "word": "take off", "meaning": "이륙하다, (옷을) 벗다, 급격히 인기나 성과가 올라가다" },
+  { "word": "carry out", "meaning": "수행하다, 실행하다" },
+  { "word": "bring about", "meaning": "초래하다, 야기하다" },
+  { "word": "account for", "meaning": "설명하다, (비율을) 차지하다" },
+  { "word": "turn down", "meaning": "거절하다, (소리·열 등을) 줄이다" },
+  { "word": "look into", "meaning": "조사하다, 들여다보다" },
+  { "word": "put off", "meaning": "미루다, 연기하다" },
+  { "word": "call off", "meaning": "취소하다" },
+  { "word": "come across", "meaning": "우연히 만나다, 인상을 주다" },
+  { "word": "give rise to", "meaning": "일으키다, 발생시키다" },
+  { "word": "give up", "meaning": "포기하다, 단념하다" },
+  { "word": "make up for", "meaning": "보상하다, 만회하다" },
+  { "word": "run out of", "meaning": "다 떨어지다, 바닥나다" },
+  { "word": "take advantage of", "meaning": "~을 이용하다, 기회로 삼다" },
+  { "word": "keep up with", "meaning": "~을 따라잡다, 뒤쳐지지 않다" },
+  { "word": "catch up with", "meaning": "~을 따라잡다" },
+  { "word": "look down on", "meaning": "업신여기다, 무시하다" },
+  { "word": "look up to", "meaning": "존경하다" },
+  { "word": "stand for", "meaning": "상징하다, 나타내다, 옹호하다" },
+  { "word": "result in", "meaning": "(결과적으로) ~을 초래하다" },
+  { "word": "result from", "meaning": "~이 원인이 되다, ~로부터 발생하다" },
+  { "word": "cope with", "meaning": "대처하다, 잘 다루다" },
+  { "word": "attribute A to B", "meaning": "A를 B의 탓(덕)으로 돌리다" },
+  { "word": "regard A as B", "meaning": "A를 B로 간주하다" },
+  { "word": "consist of", "meaning": "~로 구성되다" },
+  { "word": "bring up", "meaning": "양육하다, (화제를) 꺼내다" },
+  { "word": "set up", "meaning": "설립하다, 준비하다" },
+  { "word": "take place", "meaning": "개최되다, 일어나다" },
+  { "word": "take the place of", "meaning": "~을 대신하다" },
+  { "word": "in terms of", "meaning": "~의 관점에서, ~에 관하여" },
+  { "word": "by means of", "meaning": "~에 의하여, ~을 수단으로" },
+  { "word": "on behalf of", "meaning": "~을 대표하여, ~을 대신하여" },
+  { "word": "in place of", "meaning": "~을 대신하여" },
+  { "word": "for the sake of", "meaning": "~을 위하여" },
+  { "word": "as to", "meaning": "~에 관하여" },
+  { "word": "as for", "meaning": "~에 대해 말하자면" },
+  { "word": "regardless of", "meaning": "~에 상관없이" },
+  { "word": "owing to", "meaning": "~ 때문에" },
+  { "word": "due to", "meaning": "~ 때문에" },
+  { "word": "on account of", "meaning": "~ 때문에" },
+  { "word": "with respect to", "meaning": "~에 관하여" },
+  { "word": "in contrast to", "meaning": "~와 대조적으로" },
+  { "word": "lead to", "meaning": "(결과로) 이끌다, 초래하다" },
+  { "word": "make sense", "meaning": "이치에 맞다, 이해가 되다" },
+  { "word": "take into account", "meaning": "~을 고려하다, 참작하다" },
+  { "word": "take for granted", "meaning": "~을 당연하게 여기다" },
+  { "word": "figure out", "meaning": "알아내다, 이해하다" },
+  { "word": "turn out", "meaning": "~임이 밝혀지다, 결국 ~이 되다" },
+  { "word": "end up", "meaning": "결국 ~하게 되다" },
+  { "word": "pass away", "meaning": "사망하다, 돌아가시다" },
+  { "word": "pass out", "meaning": "의식을 잃다, 나눠주다" },
+  { "word": "break down", "meaning": "고장 나다, 분해되다, 감정이 무너지다" },
+  { "word": "break out", "meaning": "발발하다, 갑자기 발생하다" },
+  { "word": "break through", "meaning": "돌파하다, 극복하다" },
+  { "word": "cut down on", "meaning": "~을 줄이다, 감축하다" },
+  { "word": "get rid of", "meaning": "~을 제거하다, 처분하다" },
+  { "word": "lay off", "meaning": "해고하다" },
+  { "word": "pay off", "meaning": "성공하다, 결실을 맺다, 빚을 갚다" },
+  { "word": "look forward to", "meaning": "~를 기대하다, 고대하다" },
+  { "word": "get along with", "meaning": "~와 잘 지내다" },
+  { "word": "come up with", "meaning": "(아이디어 등을) 떠올리다, 제안하다" },
+  { "word": "catch sight of", "meaning": "~을 발견하다, 돏어보다" },
+  { "word": "lose sight of", "meaning": "~을 놓치다, 잊어버리다" },
+  { "word": "keep in mind", "meaning": "~을 명심하다, 기억하다" },
+  { "word": "bear in mind", "meaning": "~을 유념하다" },
+  { "word": "make progress", "meaning": "진전을 이루다, 발전하다" },
+  { "word": "make use of", "meaning": "~을 활용하다, 이용하다" },
+  { "word": "make a difference", "meaning": "변화를 가져오다, 영향을 주다" },
+  { "word": "make light of", "meaning": "~을 경시하다, 가볍게 보다" },
+  { "word": "make room for", "meaning": "~를 위해 자리를 비우다, 공간을 마련하다" },
+  { "word": "take part in", "meaning": "~에 참여하다, 참가하다" },
+  { "word": "take measure", "meaning": "조치를 취하다" },
+  { "word": "take notice of", "meaning": "~에 주의를 기울이다, 주목하다" },
+  { "word": "take turn", "meaning": "교대로 하다" },
+  { "word": "take charge of", "meaning": "~을 맡다, 책임을 지다" },
+  { "word": "give thought to", "meaning": "~에 대해 숙고하다" },
+  { "word": "give way to", "meaning": "~에 양보하다, ~에 굴복하다" },
+  { "word": "give credit to", "meaning": "~에게 공로를 돌리다, 신용하다" },
+  { "word": "pay attention to", "meaning": "~에 주의를 기울이다" },
+  { "word": "play a role in", "meaning": "~에서 역할을 하다" },
+  { "word": "play a part in", "meaning": "~에 관여하다, 한몫을 하다" },
+  { "word": "hold back", "meaning": "자제하다, 억제하다, 저지하다" },
+  { "word": "hold true", "meaning": "유효하다, 진실이다" },
+  { "word": "keep track of", "meaning": "~을 계속 파악하다, 기록하다" },
+  { "word": "lose track of", "meaning": "~을 놓치다, 잊어버리다" },
+  { "word": "set forth", "meaning": "제시하다, 발표하다, 출발하다" },
+  { "word": "set aside", "meaning": "챙겨두다, 확보하다, 무시하다" },
+  { "word": "put emphasis on", "meaning": "~을 강조하다" },
+  { "word": "put into practice", "meaning": "~을 실행에 옮기다" },
+  { "word": "bring to light", "meaning": "~을 밝혀내다, 폭로하다" },
+  { "word": "bring to mind", "meaning": "~을 상기시키다" },
+  { "word": "come to light", "meaning": "밝혀지다, 드러나다" },
+  { "word": "come into play", "meaning": "작용하기 시작하다, 영향을 미치다" },
+  { "word": "come to terms with", "meaning": "~을 받아들이다, 감수하다" },
+  { "word": "fall short of", "meaning": "~에 미치지 못하다, 부족하다" },
+  { "word": "run the risk of", "meaning": "~의 위험을 무릅쓰다" },
+  { "word": "turn a blind eye to", "meaning": "~을 못 본 척하다, 눈감아주다" },
+  { "word": "turn a deaf ear to", "meaning": "~에 귀를 기울이지 않다" },
+  { "word": "stand out", "meaning": "눈에 띄다, 두드러지다" },
+  { "word": "stand a chance", "meaning": "가능성이 있다" },
+  { "word": "pass down", "meaning": "~을 물려주다, 전해 내려오다" },
+  { "word": "hand down", "meaning": "(유산·전통을) 물려주다" },
+  { "word": "hand in", "meaning": "제출하다" },
+  { "word": "turn in", "meaning": "제출하다, 반납하다" },
+  { "word": "look up", "meaning": "(정보를) 찾아보다, 좋아지다" },
+  { "word": "look out for", "meaning": "~을 경계하다, 보살피다" },
+  { "word": "check out", "meaning": "확인하다, 대출하다, 퇴실하다" },
+  { "word": "figure on", "meaning": "~을 예상하다, 계획하다" },
+  { "word": "work out", "meaning": "운동하다, (문제가) 해결되다, 계산하다" },
+  { "word": "rule out", "meaning": "배제하다, 제외하다" },
+  { "word": "single out", "meaning": "발탁하다, 선별하다" },
+  { "word": "point out", "meaning": "지적하다, 언급하다" },
+  { "word": "wipe out", "meaning": "전멸시키다, 완전히 파괴하다" },
+  { "word": "phase out", "meaning": "단계적으로 폐지하다" },
+  { "word": "wear out", "meaning": "낡아 떨어지다, 지치게 하다" },
+  { "word": "die out", "meaning": "멸종되다, 자취를 감추다" },
+  { "word": "sell out", "meaning": "매진되다" },
+  { "word": "stand by", "meaning": "대기하다, 방관하다, 지지하다" },
+  { "word": "pass by", "meaning": "지나가다, 무시하다" },
+  { "word": "drop by", "meaning": "잠시 들르다" },
+  { "word": "come by", "meaning": "~을 얻다, 구하다, 들르다" },
+  { "word": "get by", "meaning": "그럭저럭 살아가지다, 대처하다" },
+  { "word": "abide by", "meaning": "~을 준수하다, 따르다" },
+  { "word": "comply with", "meaning": "~을 준수하다, 따르다" },
+  { "word": "conform to", "meaning": "~에 따르다, 순응하다" },
+  { "word": "coincide with", "meaning": "~와 일치하다, 동시에 일어나다" },
+  { "word": "interfere with", "meaning": "~을 방해하다, 간섭하다" },
+  { "word": "dispense with", "meaning": "~없이 지내다, 생략하다" },
+  { "word": "do away with", "meaning": "~을 폐지하다, 없애다" },
+  { "word": "part with", "meaning": "~을 손에서 떼다, 포기하다" },
+  { "word": "sympathize with", "meaning": "~에 동조하다, 공감하다" },
+  { "word": "associate A with B", "meaning": "A와 B를 연관시키다" },
+  { "word": "equate A with B", "meaning": "A와 B를 동일시하다" },
+  { "word": "reconcile A with B", "meaning": "A와 B를 조화시키다" },
+  { "word": "distinguish A from B", "meaning": "A와 B를 구별하다" },
+  { "word": "tell A from B", "meaning": "A와 B를 구별하다" },
+  { "word": "derive A from B", "meaning": "B로부터 A를 끌어내다" },
+  { "word": "stem from", "meaning": "~에서 유래하다, 기인하다" },
+  { "word": "originate from", "meaning": "~에서 비롯되다" },
+  { "word": "refrain from", "meaning": "~을 삼가다, 자제하다" },
+  { "word": "abstain from", "meaning": "~을 삼가다, 기권하다" },
+  { "word": "keep A from -ing", "meaning": "A가 ~하는 것을 막다" },
+  { "word": "prevent A from -ing", "meaning": "A가 ~하는 것을 예방하다" },
+  { "word": "stop A from -ing", "meaning": "A가 ~하는 것을 단념시키다" },
+  { "word": "hinder A from -ing", "meaning": "A가 ~하는 것을 방해하다" },
+  { "word": "prohibit A from -ing", "meaning": "A가 ~하는 것을 금지하다" },
+  { "word": "discourage A from -ing", "meaning": "A가 ~하는 것을 낙담시키다" },
+  { "word": "deter A from -ing", "meaning": "A가 ~하는 것을 단념시키다" },
+  { "word": "transform A into B", "meaning": "A를 B로 변형시키다" },
+  { "word": "convert A into B", "meaning": "A를 B로 전환하다" },
+  { "word": "translate A into B", "meaning": "A를 B로 번역/해석하다" },
+  { "word": "divide A into B", "meaning": "A를 B로 나누다" },
+  { "word": "classify A into B", "meaning": "A를 B로 분류하다" },
+  { "word": "insight into", "meaning": "~에 대한 통찰력" },
+  { "word": "investigation into", "meaning": "~에 대한 조사" },
+  { "word": "inquiry into", "meaning": "~에 대한 탐구/질문" },
+  { "word": "in accordance with", "meaning": "~에 따라서, 부합하여" },
+  { "word": "in compliance with", "meaning": "~을 준수하여" },
+  { "word": "in proportion to", "meaning": "~에 비례하여" },
+  { "word": "in comparison with", "meaning": "~와 비교하여" },
+  { "word": "in conjunction with", "meaning": "~와 연대하여, 함께" },
+  { "word": "in harmony with", "meaning": "~와 조화를 이루어" },
+  { "word": "in pursuit of", "meaning": "~을 추구하여" },
+  { "word": "in search of", "meaning": "~을 찾아서" },
+  { "word": "in honor of", "meaning": "~을 기념하여, ~에게 경의를 표하며" },
+  { "word": "in favor of", "meaning": "~에 찬성하여, ~에 유익하도록" },
+  { "word": "in light of", "meaning": "~을 고려하여, ~에 비추어 볼 때" },
+  { "word": "in view of", "meaning": "~을 고려하여" },
+  { "word": "in the wake of", "meaning": "~의 결과로, ~에 이어" },
+  { "word": "in the face of", "meaning": "~에도 불구하고, ~에 직면하여" },
+  { "word": "in the course of", "meaning": "~하는 과정 중에" },
+  { "word": "in the event of", "meaning": "~할 경우에" },
+  { "word": "by virtue of", "meaning": "~ 덕분에, ~에 힘입어" },
+  { "word": "by dint of", "meaning": "~에 의하여" },
+  { "word": "for all", "meaning": "~에도 불구하고" },
+  { "word": "with all", "meaning": "~에도 불구하고" },
+  { "word": "notwithstanding that", "meaning": "~에도 불구하고" },
+  { "word": "at the expense of", "meaning": "~을 희생하여" },
+  { "word": "at the cost of", "meaning": "~의 대가를 치르고" },
+  { "word": "at the mercy of", "meaning": "~의 자비에 좌우되는" },
+  { "word": "at the risk of", "meaning": "~의 위험을 무릅쓰고" },
+  { "word": "on top of", "meaning": "~ 외에 추가로, ~ 위에" },
+  { "word": "on the verge of", "meaning": "~의 직전에, 막 ~하려 하는" },
+  { "word": "on the brink of", "meaning": "~의 기로에 서서" },
+  { "word": "on the grounds that", "meaning": "~라는 이유로" },
+  { "word": "to the extent that", "meaning": "~할 정도까지" },
+  { "word": "to the degree that", "meaning": "~한 정도까지" },
+  { "word": "with a view to", "meaning": "~할 목적으로 (-ing)" },
+  { "word": "object to", "meaning": "~에 반대하다 (-ing)" },
+  { "word": "be opposed to", "meaning": "~에 반대하다" },
+  { "word": "be accustomed to", "meaning": "~에 익숙하다 (-ing)" },
+  { "word": "be subject to", "meaning": "~의 영향을 받기 쉽다, ~에 지배받다" },
+  { "word": "be susceptible to", "meaning": "~에 취약하다, 걸리기 쉽다" },
+  { "word": "be prone to", "meaning": "~하기 쉽다, ~하는 경향이 있다" },
+  { "word": "be inclined to", "meaning": "~하는 경향이 있다" },
+  { "word": "be apt to", "meaning": "~하기 쉽다" },
+  { "word": "be liable to", "meaning": "~하기 쉽다, 법적 책임을 지다" },
+  { "word": "be bound to", "meaning": "반드시 ~하게 되어 있다" },
+  { "word": "be reluctant to", "meaning": "~하기를 꺼리다" },
+  { "word": "be hesitant to", "meaning": "~하기를 주저하다" },
+  { "word": "be eager to", "meaning": "간절히 ~하고 싶어 하다" },
+  { "word": "be anxious to", "meaning": "열망하다, 불안해하다" },
+  { "word": "be supposed to", "meaning": "~하기로 되어 있다, ~해야 한다" },
+  { "word": "be obliged to", "meaning": "어쩔 수 없이 ~해야 한다" },
+  { "word": "be compelled to", "meaning": "강제로 ~하게 되다" },
+  { "word": "be entitled to", "meaning": "~할 자격이 있다" },
+  { "word": "be eligible for", "meaning": "~할 자격이 있다" },
+  { "word": "be worthy of", "meaning": "~할 가치가 있다" },
+  { "word": "be consistent with", "meaning": "~와 일관되다" },
+  { "word": "be compatible with", "meaning": "~와 호환되다, 양립할 수 있다" },
+  { "word": "be equivalent to", "meaning": "~와 동등하다, 상당하다" },
+  { "word": "be parallel to", "meaning": "~와 평행하다, 유사하다" },
+  { "word": "be intrinsic to", "meaning": "~에 고유하다, 본질적이다" },
+  { "word": "be inherent in", "meaning": "~에 내재되어 있다" },
+  { "word": "be integral to", "meaning": "~에 필수적이다" },
+  { "word": "be vital to", "meaning": "~에 극히 중요하다" },
+  { "word": "be crucial to", "meaning": "~에 중대하다" },
+  { "word": "be essential to", "meaning": "~에 필수적이다" },
+  { "word": "be indispensable to", "meaning": "~에 없어서는 안 된다" },
+  { "word": "be relevant to", "meaning": "~와 관련이 있다" },
+  { "word": "be pertinent to", "meaning": "~에 적절하다, 관련되다" },
+  { "word": "be alien to", "meaning": "~에게 이질적이다, 생소하다" },
+  { "word": "be detached from", "meaning": "~에서 떨어져 있다, 분리되다" },
+  { "word": "be immune to", "meaning": "~에 면역이 있다, 영향을 받지 않다" },
+  { "word": "be indifferent to", "meaning": "~에 무관심하다" },
+  { "word": "be conscious of", "meaning": "~을 인식하다, 자각하다" },
+  { "word": "be aware of", "meaning": "~을 알고 있다" },
+  { "word": "be ignorant of", "meaning": "~을 알지 못하다, 무지하다" },
+  { "word": "be skeptical of", "meaning": "~에 대해 회의적이다" },
+  { "word": "be critical of", "meaning": "~에 대해 비판적이다" },
+  { "word": "be optimistic about", "meaning": "~에 대해 낙관적이다" },
+  { "word": "be pessimistic about", "meaning": "~에 대해 회의적/비관적이다" },
+  { "word": "as long as", "meaning": "~하는 한, ~하기만 하면" },
+  { "word": "as far as", "meaning": "~하는 한(범위)" },
+  { "word": "as soon as", "meaning": "~하자마자" },
+  { "word": "as well as", "meaning": "~뿐만 아니라" },
+  { "word": "so as to", "meaning": "~하기 위하여" },
+  { "word": "in order to", "meaning": "~하기 위하여" },
+  { "word": "so that", "meaning": "~하도록, ~하기 위하여" },
+  { "word": "in order that", "meaning": "~하도록" },
+  { "word": "provided that", "meaning": "~라는 조건에서, 만약 ~라면" },
+  { "word": "providing that", "meaning": "~라면" },
+  { "word": "supposing that", "meaning": "만약 ~라면" },
+  { "word": "assuming that", "meaning": "~라고 가정하면" },
+  { "word": "given that", "meaning": "~를 고려해 볼 때" },
+  { "word": "seeing that", "meaning": "~인 것으로 보아, ~이므로" },
+  { "word": "now that", "meaning": "이제 ~이므로" },
+  { "word": "in that", "meaning": "~라는 점에서" },
+  { "word": "except that", "meaning": "~라는 점만 제외하고" },
+  { "word": "save that", "meaning": "~외에는" },
+  { "word": "for fear that", "meaning": "~할까 봐 두려워" },
+  { "word": "lest S should", "meaning": "~하지 않도록" },
+  { "word": "every time", "meaning": "~할 때마다" },
+  { "word": "each time", "meaning": "~할 때마다" },
+  { "word": "by the time", "meaning": "~할 무렵에" },
+  { "word": "the moment", "meaning": "~하자마자" },
+  { "word": "the instant", "meaning": "막 ~하자마자" },
+  { "word": "no sooner than", "meaning": "~하자마자 곧 ~하다" },
+  { "word": "hardly when", "meaning": "~하자마자 ~하다" },
+  { "word": "scarcely before", "meaning": "~하자마자 ~하다" },
+  { "word": "as if", "meaning": "마치 ~인 것처럼" },
+  { "word": "as though", "meaning": "마치 ~인 것처럼" },
+  { "word": "even if", "meaning": "비록 ~일지라도" },
+  { "word": "even 코증", "meaning": "비록 ~함에도 불구하고" },
+  { "word": "as it were", "meaning": "말하자면, 소위" },
+  { "word": "so to speak", "meaning": "말하자면" },
+  { "word": "needless to say", "meaning": "말할 필요도 없이" },
+  { "word": "to make matters worse", "meaning": "설상가상으로" },
+  { "word": "strange to say", "meaning": "이상한 말이지만" },
+  { "word": "sad to say", "meaning": "슬픈 일이지만" },
+  { "word": "to begin with", "meaning": "우선, 첫째로" },
+  { "word": "to start with", "meaning": "먼저, 우선" },
+  { "word": "to be frank with you", "meaning": "솔직히 말해서" },
+  { "word": "to tell the truth", "meaning": "실은, 사실대로 말하면" },
+  { "word": "to be sure", "meaning": "확실히, 확실하게" },
+  { "word": "to sum up", "meaning": "요약하자면" },
+  { "word": "to put it simply", "meaning": "간단히 말해서" },
+  { "word": "to put it another way", "meaning": "달리 표현하자면" },
+  { "word": "in short", "meaning": "요컨대, 간단히 말해" },
+  { "word": "in brief", "meaning": "간단히 말해서" },
+  { "word": "in summary", "meaning": "요약하자면" },
+  { "word": "in conclusion", "meaning": "결론적으로" },
+  { "word": "in essence", "meaning": "본질적으로" },
+  { "word": "in general", "meaning": "일반적으로" },
+  { "word": "in particular", "meaning": "특히, 상세히" },
+  { "word": "in detail", "meaning": "상세하게" },
+  { "word": "in reality", "meaning": "실제로는" },
+  { "word": "in effect", "meaning": "사실상, 실제로는" },
+  { "word": "in practice", "meaning": "실제로는, 실천상" },
+  { "word": "in theory", "meaning": "이론상으로는" },
+  { "word": "in principle", "meaning": "원칙적으로는" },
+  { "word": "in advance", "meaning": "미리, 사전에" },
+  { "word": "in vain", "meaning": "헛되이, 보람 없이" },
+  { "word": "in return", "meaning": "대답으로, 보답으로" },
+  { "word": "in turn", "meaning": "차례로, 결과적으로" },
+  { "word": "by contrast", "meaning": "그에 반해서" },
+  { "word": "on the contrary", "meaning": "그와는 반대로" },
+  { "word": "on the other hand", "meaning": "반면에" },
+  { "word": "as a result", "meaning": "결과적으로" },
+  { "word": "as a consequence", "meaning": "그 결과로서" },
+  { "word": "for instance", "meaning": "예를 들어" },
+  { "word": "for example", "meaning": "예를 들어" },
+  { "word": "that is to say", "meaning": "즉, 다시 말해" },
+  { "word": "namely", "meaning": "즉, 다시 말해" },
+  { "word": "above all", "meaning": "무엇보다도" },
+  { "word": "first of all", "meaning": "무엇보다 먼저" },
+  { "word": "last but not least", "meaning": "마지막으로, 그러나 중요한" },
+  { "word": "all in all", "meaning": "대체로, 전반적으로" },
+  { "word": "on the whole", "meaning": "전체적으로 보아" },
+  { "word": "by and large", "meaning": "대체로" },
+  { "word": "more or less", "meaning": "다소, 어느 정도" },
+  { "word": "sooner or later", "meaning": "조만간, 언젠가는" },
+  { "word": "once in a while", "meaning": "가끔, 때때로" },
+  { "word": "from time to time", "meaning": "때때로, 가끔" },
+  { "word": "now and then", "meaning": "이따금" },
+  { "word": "off and on", "meaning": "간헐적으로" },
+  { "word": "little by little", "meaning": "조금씩, 차츰" },
+  { "word": "step by step", "meaning": "단계적으로" },
+  { "word": "side by side", "meaning": "나란히" },
+  { "word": "face to face", "meaning": "마주보고" },
+  { "word": "back to back", "meaning": "등을 대고, 연속하여" },
+  { "word": "door to door", "meaning": "집집마다" },
+  { "word": "heart to heart", "meaning": "솔직하게, 마음을 터놓고" },
+  { "word": "out of date", "meaning": "시대에 뒤떨어진, 구식의" },
+  { "word": "up to date", "meaning": "최신의" },
+  { "word": "out of order", "meaning": "고장 난" },
+  { "word": "out of stock", "meaning": "재고가 없는" },
+  { "word": "out of reach", "meaning": "손이 닿지 않는" },
+  { "word": "out of touch", "meaning": "소식이 끊긴" },
+  { "word": "out of the question", "meaning": "불가능한, 논외의" },
+  { "word": "under way", "meaning": "진행 중인" },
+  { "word": "under construction", "meaning": "공사 중인" },
+  { "word": "under control", "meaning": "통제되고 있는" },
+  { "word": "under pressure", "meaning": "압박을 받는" },
+  { "word": "under investigation", "meaning": "조사 중인" },
+  { "word": "at hand", "meaning": "가까이에, 임박한" },
+  { "word": "at length", "meaning": "길게, 상세히, 마침내" },
+  { "word": "at random", "meaning": "무작위로" },
+  { "word": "at stake", "meaning": "위험에 처한, 성패가 달린" },
+  { "word": "at ease", "meaning": "편안한" },
+  { "word": "at large", "meaning": "전체적인, 도주 중인" },
+  { "word": "by accident", "meaning": "우연히" },
+  { "word": "by chance", "meaning": "우연히" },
+  { "word": "by design", "meaning": "고의로, 의도적으로" },
+  { "word": "on purpose", "meaning": "일부러, 고의로" },
+  { "word": "off hand", "meaning": "즉석에서" },
+  { "word": "off guard", "meaning": "방심하여" },
+  { "word": "off the record", "meaning": "비공개의" },
+  { "word": "ahead of time", "meaning": "예정보다 일찍" },
+  { "word": "behind time", "meaning": "지연된" },
+  { "word": "behind the scenes", "meaning": "무대 뒤에서, 막후에서" },
+  { "word": "beyond description", "meaning": "말표현을 초월한" },
+  { "word": "beyond reach", "meaning": "미치지 못하는" },
+  { "word": "without exception", "meaning": "예외 없이" },
+  { "word": "without fail", "meaning": "틀림없이, 반드시" },
+  { "word": "with ease", "meaning": "용이하게, 쉽게" },
+  { "word": "with care", "meaning": "조심스럽게" },
+  { "word": "for good", "meaning": "영원히" },
+  { "word": "for the time being", "meaning": "당분간" },
+  { "word": "for now", "meaning": "우선은, 현재로서는" },
+  { "word": "for nothing", "meaning": "공짜로, 헛되이" },
+  { "word": "to date", "meaning": "지금까지" },
+  { "word": "up until", "meaning": "~까지" },
+  { "word": "as of", "meaning": "~부로, ~ 현재로" },
+  { "word": "prior to", "meaning": "~에 앞서, 사전에" },
+  { "word": "subsequent to", "meaning": "~ 다음에" },
+  { "word": "contrary to", "meaning": "~와 반대로" },
+  { "word": "thanks to", "meaning": "~ 덕분에" },
+  { "word": "due to", "meaning": "~ 때문에" },
+  { "word": "owing to", "meaning": "~ 때문에" },
+  { "word": "because of", "meaning": "~ 때문에" },
+  { "word": "instead of", "meaning": "~ 대신에" },
+  { "word": "ahead of", "meaning": "~보다 앞서" },
+  { "word": "aside from", "meaning": "~ 외에도, ~을 제외하고" },
+  { "word": "apart from", "meaning": "~을 제외하고, ~ 외에" },
+  { "word": "let alone", "meaning": "~은 말할 것도 없이" },
+  { "word": "not to mention", "meaning": "~은 말할 것도 없이" },
+  { "word": "to say nothing of", "meaning": "~은 말할 것도 없이" },
+  { "word": "significance", "meaning": "중요성, 의의" },
+  { "word": "implication", "meaning": "함의, 암시, 영향" },
+  { "word": "bias", "meaning": "편견, 편향" },
+  { "word": "stereotype", "meaning": "고정관념" },
+  { "word": "perception", "meaning": "지각, 자각, 인식" },
+  { "word": "perspective", "meaning": "시각, 관점, 원근법" },
+  { "word": "illusion", "meaning": "환상, 착각" },
+  { "word": "delusion", "meaning": "망상, 망념" },
+  { "word": "empathy", "meaning": "공감, 감정이입" },
+  { "word": "sympathy", "meaning": "동정, 연민, 공감" },
+  { "word": "compassion", "meaning": "연민, 측은지심" },
+  { "word": "altruism", "meaning": "이타주의" },
+  { "word": "egoism", "meaning": "이기주의" },
+  { "word": "individualism", "meaning": "개인주의" },
+  { "word": "collectivism", "meaning": "집단주의" },
+  { "word": "conformity", "meaning": "순응, 일치" },
+  { "word": "deviation", "meaning": "일탈, 편차" },
+  { "word": "norm", "meaning": "규범, 표준" },
+  { "word": "criterion", "meaning": "기준, 척도" },
+  { "word": "benchmark", "meaning": "기준점, 벤치마크" },
+  { "word": "paradigm", "meaning": "패러다임, 전형적인 예" },
+  { "word": "dilemma", "meaning": "딜레마, 진퇴양난" },
+  { "word": "paradox", "meaning": "역설, 패러독스" },
+  { "word": "irony", "meaning": "아이러니, 반어법" },
+  { "word": "rhetoric", "meaning": "수사학, 미사여구" },
+  { "word": "metaphor", "meaning": "은유, 비유" },
+  { "word": "analogy", "meaning": "유추, 비유" },
+  { "word": "hypothesis", "meaning": "가설" },
+  { "word": "premise", "meaning": "전제" },
+  { "word": "proposition", "meaning": "명제, 제안" },
+  { "word": "inference", "meaning": "추론, 추정" },
+  { "word": "deduction", "meaning": "연쇄 추론, 공제" },
+  { "word": "induction", "meaning": "귀납법, 도입" },
+  { "word": "validity", "meaning": "타당성, 유효성" },
+  { "word": "reliability", "meaning": "신뢰성, 확실성" },
+  { "word": "variable", "meaning": "변수, 변하기 쉬운" },
+  { "word": "correlation", "meaning": "상관관계" },
+  { "word": "causation", "meaning": "인과관계" },
+  { "word": "coincidence", "meaning": "우연의 일치" },
+  { "word": "phenomenon", "meaning": "현상" },
+  { "word": "anomaly", "meaning": "변칙, 이상" },
+  { "word": "diversity", "meaning": "다양성" },
+  { "word": "biodiversity", "meaning": "생물 다양성" },
+  { "word": "ecosystem", "meaning": "생태계" },
+  { "word": "habitat", "meaning": "서식지" },
+  { "word": "niche", "meaning": "틈새, 틈새시장, 생태적 지위" },
+  { "word": "species", "meaning": "종(생물 분류)" },
+  { "word": "organism", "meaning": "유기체, 생물" },
+  { "word": "evolution", "meaning": "진화" },
+  { "word": "natural selection", "meaning": "자연선택" },
+  { "word": "adaptation", "meaning": "적응, 각색" },
+  { "word": "mutation", "meaning": "돌연변이" },
+  { "word": "heredity", "meaning": "유전" },
+  { "word": "gene", "meaning": "유전자" },
+  { "word": "chromosome", "meaning": "염색체" },
+  { "word": "sustainability", "meaning": "지속 가능성" },
+  { "word": "conservation", "meaning": "보존, 보호" },
+  { "word": "preservation", "meaning": "보존, 유지" },
+  { "word": "depletion", "meaning": "고갈, 소모" },
+  { "word": "deforestation", "meaning": "삼림 파괴" },
+  { "word": "urbanization", "meaning": "도시화" },
+  { "word": "global warming", "meaning": "지구 온난화" },
+  { "word": "greenhouse effect", "meaning": "온실 효과" },
+  { "word": "renewable energy", "meaning": "재생 가능 에너지" },
+  { "word": "fossil fuel", "meaning": "화석 연료" },
+  { "word": "carbon footprint", "meaning": "탄소 발자국" },
+  { "word": "biodegradable", "meaning": "생분해성의" },
+  { "word": "scarcity", "meaning": "부족, 희소성" },
+  { "word": "abundance", "meaning": "풍부함" },
+  { "word": "surplus", "meaning": "잉여, 흑자" },
+  { "word": "deficit", "meaning": "적자, 부족액" },
+  { "word": "inflation", "meaning": "통화 증대, 물가 상승" },
+  { "word": "deflation", "meaning": "통화 수축, 물가 하락" },
+  { "word": "recession", "meaning": "경기 후퇴, 불황" },
+  { "word": "depression", "meaning": "불경기, 우울증" },
+  { "word": "monopoly", "meaning": "독점" },
+  { "word": "oligopoly", "meaning": "과점" },
+  { "word": "commodity", "meaning": "상품, 원자재" },
+  { "word": "asset", "meaning": "자산, 자산 가치가 있는 것" },
+  { "word": "liability", "meaning": "부채, 법적 책임, 장애물" },
+  { "word": "equity", "meaning": "공평, 자본금, 지분" },
+  { "word": "dividend", "meaning": "배당금" },
+  { "word": "subsidy", "meaning": "보조금" },
+  { "word": "tariff", "meaning": "관세" },
+  { "word": "fiscal", "meaning": "재정의, 회계의" },
+  { "word": "monetary", "meaning": "통화의, 화폐의" },
+  { "word": "transaction", "meaning": "거래, 매매" },
+  { "word": "entrepreneur", "meaning": "기업가, 사업가" },
+  { "word": "innovation", "meaning": "혁신" },
+  { "word": "infrastructure", "meaning": "사회 기반 시설, 인프라" },
+  { "word": "productivity", "meaning": "생산성" },
+  { "word": "efficiency", "meaning": "효율성" },
+  { "word": "incentive", "meaning": "유인책, 장려금" },
+  { "word": "consumerism", "meaning": "소비주의" },
+  { "word": "commercialization", "meaning": "상업화" },
+  { "word": "globalization", "meaning": "세계화" },
+  { "word": "localization", "meaning": "국지화, 현지화" },
+  { "word": "demographics", "meaning": "인구 통계학적 특성" },
+  { "word": "migration", "meaning": "이주, 이동" },
+  { "word": "immigration", "meaning": "이민(들어오는 것)" },
+  { "word": "emigration", "meaning": "이민(나가는 것)" },
+  { "word": "assimilate", "meaning": "동화시키다, 흡수하다" },
+  { "word": "integration", "meaning": "통합" },
+  { "word": "segregation", "meaning": "차별, 분리" },
+  { "word": "marginalization", "meaning": "소외, 사회적 주외화" },
+  { "word": "stratification", "meaning": "계층화, 계급화" },
+  { "word": "mobility", "meaning": "이동성, 기동성" },
+  { "word": "feudalism", "meaning": "봉건제" },
+  { "word": "capitalism", "meaning": "자본주의" },
+  { "word": "socialism", "meaning": "사회주의" },
+  { "word": "democracy", "meaning": "민주주의" },
+  { "word": "totalitarianism", "meaning": "전체주의" },
+  { "word": "authoritarianism", "meaning": "권위주의" },
+  { "word": "anarchy", "meaning": "무정부 상태" },
+  { "word": "sovereignty", "meaning": "주권, 통치권" },
+  { "word": "constitution", "meaning": "헌법, 구성, 체질" },
+  { "word": "legislation", "meaning": "입법, 법률 제정" },
+  { "word": "jurisdiction", "meaning": "사법권, 관할권" },
+  { "word": "bureaucracy", "meaning": "관료제" },
+  { "word": "diplomacy", "meaning": "외교, 외교적 수완" },
+  { "word": "autonomy", "meaning": "자율성, 자치권" },
+  { "word": "consensus", "meaning": "여론, 합의" },
+  { "word": "referendum", "meaning": "국민 투표" },
+  { "word": "coalition", "meaning": "연립 정부, 연합" },
+  { "word": "sanction", "meaning": "제재, 승인" },
+  { "word": "embargo", "meaning": "통상 금지, 수출입 금지" },
+  { "word": "ratify", "meaning": "비준하다, 승인하다" },
+  { "word": "veto", "meaning": "거부권, 거부하다" },
+  { "word": "neurology", "meaning": "신경학" },
+  { "word": "neuron", "meaning": "신경세포, 뉴런" },
+  { "word": "synapse", "meaning": "시냅스(신경세포 접합부)" },
+  { "word": "neurotransmitter", "meaning": "신경전달물질" },
+  { "word": "cognition", "meaning": "인지, 인식" },
+  { "word": "perception", "meaning": "지각, 자각" },
+  { "word": "consciousness", "meaning": "의식" },
+  { "word": "subconscious", "meaning": "잠재의식" },
+  { "word": "unconscious", "meaning": "무의식의, 의식을 잃은" },
+  { "word": "stimulus", "meaning": "자극" },
+  { "word": "response", "meaning": "반응, 응답" },
+  { "word": "conditioning", "meaning": "조건화, 길들이기" },
+  { "word": "reinforcement", "meaning": "강화, 보강" },
+  { "word": "inhibition", "meaning": "억제, 억금" },
+  { "word": "amnesia", "meaning": "건망증, 기억상실" },
+  { "word": "dementia", "meaning": "치매" },
+  { "word": "phobia", "meaning": "공포증" },
+  { "word": "anxiety", "meaning": "불안, 염려" },
+  { "word": "neurosis", "meaning": "신경증, 노이로제" },
+  { "word": "psychosis", "meaning": "정신병" },
+  { "word": "placebo effect", "meaning": "플라시보 효과(위약 효과)" },
+  { "word": "bias", "meaning": "편향, 편견" },
+  { "word": "cognitive dissonance", "meaning": "인지적 부조화" },
+  { "word": "confirmation bias", "meaning": "확증 편향" },
+  { "word": "heuristics", "meaning": "휴리스틱(직관적 판단)" },
+  { "word": "introspection", "meaning": "내성, 자기성찰" },
+  { "word": "extrovert", "meaning": "외향적인 사람" },
+  { "word": "introvert", "meaning": "내향적인 사람" },
+  { "word": "resilience", "meaning": "회복 탄력성" },
+  { "word": "vulnerability", "meaning": "취약성" },
+  { "word": "self-esteem", "meaning": "자존감, 자부심" },
+  { "word": "self-efficacy", "meaning": "자기 효능감" },
+  { "word": "narcissism", "meaning": "자기애, 나르시시즘" },
+  { "word": "aesthetics", "meaning": "미학, 미적 감각" },
+  { "word": "genre", "meaning": "장르, 유형" },
+  { "word": "motif", "meaning": "모티브, 주제" },
+  { "word": "narrative", "meaning": "서사, 이야기" },
+  { "word": "prose", "meaning": "산문" },
+  { "word": "poetry", "meaning": "시, 시가" },
+  { "word": "verse", "meaning": "운문, 시의 절" },
+  { "word": "allegory", "meaning": "우화, 풍자" },
+  { "word": "satire", "meaning": "풍자" },
+  { "word": "parody", "meaning": "패러디, 패러디하다" },
+  { "word": "protagonist", "meaning": "주인공" },
+  { "word": "antagonist", "meaning": "적대자, 반대자" },
+  { "word": "climax", "meaning": "클라이맥스, 최고조" },
+  { "word": "foreshadowing", "meaning": "복선" },
+  { "word": "hyperbole", "meaning": "과장법" },
+  { "word": "personification", "meaning": "의인화" },
+  { "word": "composition", "meaning": "작품, 구성, 작곡" },
+  { "word": "exhibition", "meaning": "전시회" },
+  { "word": "heritage", "meaning": "유산" },
+  { "word": "artifact", "meaning": "인공물, 유물" },
+  { "word": "archaeology", "meaning": "고고학" },
+  { "word": "anthropology", "meaning": "인류학" },
+  { "word": "folklore", "meaning": "민속, 민속학" },
+  { "word": "mythology", "meaning": "신화" },
+  { "word": "ritual", "meaning": "의식, 의례" },
+  { "word": "sacred", "meaning": "신성한" },
+  { "word": "secular", "meaning": "세속적인" },
+  { "word": "doctrine", "meaning": "교리, 신조" },
+  { "word": "dogma", "meaning": "독단적 교리" },
+  { "word": "theology", "meaning": "신학" },
+  { "word": "existentialism", "meaning": "존재주의" },
+  { "word": "pragmatism", "meaning": "실용주의" },
+  { "word": "rationalism", "meaning": "합리주의" },
+  { "word": "empiricism", "meaning": "경험주의" },
+  { "word": "relativism", "meaning": "상대주의" },
+  { "word": "skepticism", "meaning": "회의론" },
+  { "word": "nihilism", "meaning": "허무주의" },
+  { "word": "utilitarianism", "meaning": "공리주의" },
+  { "word": "ethics", "meaning": "윤리학, 도덕" },
+  { "word": "morale", "meaning": "사기, 의욕" },
+  { "word": "morality", "meaning": "도덕성" },
+  { "word": "integrity", "meaning": "진실성, 청렴" },
+  { "word": "virtue", "meaning": "덕목, 미덕" },
+  { "word": "vice", "meaning": "악덕, 부도덕" },
+  { "word": "algorithm", "meaning": "알고리즘" },
+  { "word": "artificial intelligence", "meaning": "인공지능" },
+  { "word": "machine learning", "meaning": "머신러닝, 기계 학습" },
+  { "word": "big data", "meaning": "빅데이터" },
+  { "word": "cloud computing", "meaning": "클라우드 컴퓨팅" },
+  { "word": "cybersecurity", "meaning": "사이버 보안" },
+  { "word": "cryptocurrency", "meaning": "암호화폐" },
+  { "word": "blockchain", "meaning": "블록체인" },
+  { "word": "automation", "meaning": "자동화" },
+  { "word": "biotechnology", "meaning": "생명공학" },
+  { "word": "nanotechnology", "meaning": "나노기술" },
+  { "word": "telecommunication", "meaning": "원거리 통신" },
+  { "word": "virtual reality", "meaning": "가상 현실" },
+  { "word": "augmented reality", "meaning": "증강 현실" },
+  { "word": "quantum mechanics", "meaning": "양자역학" },
+  { "word": "thermodynamics", "meaning": "열역학" },
+  { "word": "astronomy", "meaning": "아스트로노미, 천문학" },
+  { "word": "astrology", "meaning": "점성술" },
+  { "word": "geology", "meaning": "지질학" },
+  { "word": "meteorology", "meaning": "기상학" },
+  { "word": "seismology", "meaning": "지진학" },
+  { "word": "genetics", "meaning": "유전학" },
+  { "word": "anatomy", "meaning": "해부학, 구조" },
+  { "word": "physiology", "meaning": "생리학" },
+  { "word": "pathology", "meaning": "병리학" },
+  { "word": "pharmacology", "meaning": "약리학" },
+  { "word": "pedagogy", "meaning": "교육학" },
+  { "word": "curriculum", "meaning": "교육과정" },
+  { "word": "literacy", "meaning": "문해력, 글을 읽고 쓰는 능력" },
+  { "word": "numeracy", "meaning": "산술 능력" },
+  { "word": "discipline", "meaning": "훈육, 규율, 학문 분야" },
+  { "word": "scholarship", "meaning": "장학금, 학문" },
+  { "word": "tuition", "meaning": "수업료" },
+  { "word": "alumni", "meaning": "졸업생들" },
+  { "word": "faculty", "meaning": "교직원, (대학의) 학부, 능력" },
+  { "word": "mentor", "meaning": "조언자, 멘토" },
+  { "word": "apprentice", "meaning": "견습생, 도제" },
+  { "word": "plagiarism", "meaning": "표절" },
+  { "word": "dissertation", "meaning": "학위 논문" },
+  { "word": "abstract", "meaning": "초록, 개요, 추상적인" },
+  { "word": "methodology", "meaning": "방법론" },
+  { "word": "peer review", "meaning": "동료 평가" },
+  { "word": "citation", "meaning": "인용" },
+  { "word": "bibliography", "meaning": "참고문헌 목록" },
+  { "word": "academic", "meaning": "학술적인, 학문의" },
+  { "word": "interdisciplinary", "meaning": "학제간의, 여러 학문 분야에 걸친" },
+  { "word": "vocational", "meaning": "직업의" },
+  { "word": "extracurricular", "meaning": "특별활동의, 과외의" },
+  { "word": "standardized test", "meaning": "표준화 시험" },
+  { "word": "aptitude", "meaning": "적성, 소질" },
+  { "word": "competence", "meaning": "역량, 능력" },
+  { "word": "proficiency", "meaning": "숙달, 능숙함" },
+  { "word": "attainment", "meaning": "성취, 달성" },
+  { "word": "evaluate", "meaning": "평가하다" },
+  { "word": "assess", "meaning": "산정하다, 평가하다" },
+  { "word": "grade", "meaning": "성적, 등급, 평가하다" },
+  { "word": "remedial", "meaning": "교정하는, 보충하는" },
+  { "word": "mandatory", "meaning": "의무적인, 필수적인" },
+  { "word": "compulsory", "meaning": "강제적인, 의무적인" },
+  { "word": "optional", "meaning": "선택적인" },
+  { "word": "elective", "meaning": "선택 과목의" },
+  { "word": "holistic", "meaning": "전인적인, 전체론적인" },
+  { "word": "formative", "meaning": "형성적인" },
+  { "word": "summative", "meaning": "총합적인" },
+  { "word": "cognitive", "meaning": "인지적인" },
+  { "word": "affective", "meaning": "정의적인, 감정의" },
+  { "word": "psychomotor", "meaning": "정신운동의" },
+  { "word": "pedagogical", "meaning": "교육학적인" },
+  { "word": "scaffolding", "meaning": "비계 설정, 발판" },
+  { "word": "metacognition", "meaning": "초인지, 메타인지" },
+  { "word": "differentiated instruction", "meaning": "차별화 수업" },
+  { "word": "inclusive education", "meaning": "통합 교육" },
+  { "word": "special education", "meaning": "특수 교육" },
+  { "word": "gifted education", "meaning": "영재 교육" },
+  { "word": "early childhood education", "meaning": "유아 교육" },
+  { "word": "higher education", "meaning": "고등 교육" },
+  { "word": "lifelong learning", "meaning": "평생 학습" },
+  { "word": "distance learning", "meaning": "원격 학습" },
+  { "word": "blended learning", "meaning": "혼합형 학습(블렌디드 러닝)" },
+  { "word": "flipped classroom", "meaning": "플립드 러닝, 거꾸로 교실" },
+  { "word": "gamification", "meaning": "게이미피케이션, 게임화" },
+  { "word": "engagement", "meaning": "참여, 몰입" },
+  { "word": "motivation", "meaning": "동기 부여" },
+  { "word": "intrinsic motivation", "meaning": "내재적 동기" },
+  { "word": "extrinsic motivation", "meaning": "외재적 동기" },
+  { "word": "self-directed learning", "meaning": "자기주도 학습" },
+  { "word": "collaborative learning", "meaning": "협동 학습" },
+  { "word": "peer tutoring", "meaning": "동료 튜터링" },
+  { "word": "inquiry-based learning", "meaning": "탐구 기반 학습" },
+  { "word": "problem-based learning", "meaning": "문제 기반 학습" },
+  { "word": "project-based learning", "meaning": "프로젝트 기반 학습" },
+  { "word": "experiential learning", "meaning": "체험 학습" },
+  { "word": "action research", "meaning": "실천 연구" },
+  { "word": "case study", "meaning": "사례 연구" },
+  { "word": "qualitative research", "meaning": "질적 연구" },
+  { "word": "quantitative research", "meaning": "량적 연구" },
+  { "word": "empirical study", "meaning": "실증적 연구" },
+  { "word": "longitudinal study", "meaning": "종단 연구" },
+  { "word": "cross-sectional study", "meaning": "횡단 연구" },
+  { "word": "experimental group", "meaning": "실험군" },
+  { "word": "control group", "meaning": "대조군" },
+  { "word": "independent variable", "meaning": "독립 변수" },
+  { "word": "dependent variable", "meaning": "종속 변수" },
+  { "word": "confounding variable", "meaning": "교란 변수" },
+  { "word": "statistical significance", "meaning": "통계적 유의성" },
+  { "word": "sample size", "meaning": "표본 크기" },
+  { "word": "random sampling", "meaning": "무작위 표집" },
+  { "word": "generalizability", "meaning": "일반화 가능성" },
+  { "word": "validity", "meaning": "타당도" },
+  { "word": "reliability", "meaning": "신뢰도" },
+  { "word": "objectivity", "meaning": "객관성" },
+  { "word": "subjectivity", "meaning": "주관성" },
+  { "word": "triangulation", "meaning": "삼각측량법, 다각화" },
+  { "word": "ethical approval", "meaning": "윤리적 승인" },
+  { "word": "informed consent", "meaning": "사전 동의" },
+  { "word": "confidentiality", "meaning": "비밀 유지" },
+  { "word": "anonymity", "meaning": "익명성" }
+        ];
+
+        /* BGM Database - 같은 폴더 경로 (bgm1.mp3 ~ 원하는 만큼 무제한 추가 가능) */
+        const shopBgms = [
+            { id: "bgm1", name: "기본 모험가 테마 (bgm1.mp3)", file: "bgm1.mp3", price: 0, icon: "🎺", desc: "호마맨의 용감한 시작을 알리는 기본 모험가 테마" },
+            { id: "bgm2", name: "신비한 던전 행진곡 (bgm2.mp3)", file: "bgm2.mp3", price: 200, icon: "🎹", desc: "신비롭고 웅장한 느낌의 던전 탐험 BGM" },
+            { id: "bgm3", name: "불타는 전장 행진곡 (bgm3.mp3)", file: "bgm3.mp3", price: 300, icon: "🎸", desc: "긴장감이 매섭게 몰아치는 열혈 전투 BGM" },
+            { id: "bgm4", name: "평화로운 마을 휴식 (bgm4.mp3)", file: "bgm4.mp3", price: 400, icon: "🎻", desc: "마음이 편안해지는 고즈넉한 마을 테마 BGM" },
+            { id: "bgm5", name: "사이아인 승리 행진 (bgm5.mp3)", file: "bgm5.mp3", price: 500, icon: "🥁", desc: "파워가 솟구치는 용사 승리의 전주곡" },
+            { id: "bgm6", name: "사이버 네온 비트 (bgm6.mp3)", file: "bgm6.mp3", price: 600, icon: "🎧", desc: "세련되고 트렌디한 전자음악 신스웨이브 BGM" },
+            { id: "bgm7", name: "황금빛 영웅 신전 (bgm7.mp3)", file: "bgm7.mp3", price: 700, icon: "🎷", desc: "고대 전설의 영웅들이 가득한 신전 오케스트라" },
+            { id: "bgm8", name: "심해 아틀란티스 (bgm8.mp3)", file: "bgm8.mp3", price: 800, icon: "🔔", desc: "몽환적이고 환상적인 바닷속 비밀 공간 테마" },
+            { id: "bgm9", name: "최후의 마왕 보스전 (bgm9.mp3)", file: "bgm9.mp3", price: 900, icon: "⚡", desc: "최종 결전의 비장함이 감도는 마왕 대결 BGM" },
+            { id: "bgm10", name: "수능 1등급 신화의 노래 (bgm10.mp3)", file: "bgm10.mp3", price: 1000, icon: "👑", desc: "모든 시험을 정복한 진정한 수능 마스터의 영광 BGM" }
+            /* 💡 원하는 만큼 bgm11.mp3, bgm12.mp3 등을 아래에 자유롭게 줄 추가 가능! */
+        ];
+
+        /* Full 100 Master Skills Database */
+        const masterSkills = [
+            // Level 1 (1-10)
+            { id: "pistol", reqLv: 1, name: "고무고무 피스톨", origin: "원피스", icon: "👊", type: "single", hits: 1, dmgMult: 1.5, desc: "팔을 멀리 늘려 단일 적을 강타합니다. (150% 대미지)" },
+            { id: "whip", reqLv: 1, name: "고무고무 채찍", origin: "원피스", icon: "🦵", type: "aoe", targets: 3, hits: 1, dmgMult: 1.2, desc: "다리를 늘려 적 무리 3마리를 휘감습니다. (120% 대미지)" },
+            { id: "steampack", reqLv: 1, name: "마린의 스팀팩", origin: "스타크래프트", icon: "💉", type: "buff", buffType: "atk", buffTurns: 3, desc: "3턴 동안 공격력이 1.5배로 상승합니다." },
+            { id: "lumos", reqLv: 1, name: "루모스", origin: "해리포터", icon: "🪄", type: "single", hits: 1, dmgMult: 1.8, desc: "지팡이 끝에서 빛을 분출해 적을 타격합니다. (180% 대미지)" },
+            { id: "q_strike", reqLv: 1, name: "일주천 (알파 스트라이크)", origin: "LoL", icon: "⚔️", type: "aoe", targets: 4, hits: 2, dmgMult: 1.0, desc: "전장을 시야에서 사라져 가로지릅니다. (2연타)" },
+            { id: "bazooka", reqLv: 1, name: "고무고무 바주카", origin: "원피스", icon: "👐", type: "single", hits: 2, dmgMult: 1.2, desc: "양손을 뒤로 당겼다 동시에 날립니다. (2연타)" },
+            { id: "normal_punch", reqLv: 1, name: "연속 보통 펀치", origin: "원펀맨", icon: "🤛", type: "single", hits: 5, dmgMult: 0.8, desc: "무성의한 보통 펀치를 무차별 난사합니다. (5연타)" },
+            { id: "soul_drive", reqLv: 1, name: "소울 드라이브", origin: "메이플스토리", icon: "🗡️", type: "aoe", targets: 3, hits: 2, dmgMult: 1.1, desc: "영혼의 검기를 지면에서 분출시킵니다. (3마리 2연타)" },
+            { id: "psionic_storm", reqLv: 1, name: "사이오닉 스톰", origin: "스타크래프트", icon: "⚡", type: "aoe", targets: 5, hits: 3, dmgMult: 0.9, desc: "고위 기사의 사이오닉 에너지를 폭발시킵니다." },
+            { id: "incendio", reqLv: 1, name: "인센디오", origin: "해리포터", icon: "🔥", type: "aoe", targets: 2, hits: 1, dmgMult: 2.0, desc: "화염 마법 주문으로 적들을 불태웁니다." },
+
+            // Level 2 (11-20)
+            { id: "gear2", reqLv: 2, name: "기어 세컨드", origin: "원피스", icon: "💨", type: "buff", buffType: "crit", buffTurns: 4, desc: "혈류를 촉진해 4턴 간 치명타율 +30% 상승!" },
+            { id: "assassinate", reqLv: 2, name: "섀도어 암살", origin: "메이플스토리", icon: "🗡️", type: "single", hits: 4, dmgMult: 1.4, desc: "어둠 속에서 급소를 4연속 정밀 타격합니다." },
+            { id: "yamato", reqLv: 2, name: "배틀크루저 야마토포", origin: "스타크래프트", icon: "🔴", type: "single", hits: 1, dmgMult: 4.5, desc: "에너지를 모아 단일 보스에게 초강력 레이저를 쏩니다." },
+            { id: "expecto", reqLv: 2, name: "익스펙토 펙트로눔", origin: "해리포터", icon: "🦌", type: "aoe", targets: 5, hits: 1, dmgMult: 2.2, desc: "빛의 패트로누스를 소환해 적 전체를 쓸어버립니다." },
+            { id: "garen_ult", reqLv: 2, name: "데마시아의 정의", origin: "LoL", icon: "🗡️", type: "single", hits: 1, dmgMult: 3.8, desc: "하늘에서 대검을 떨어뜨려 징벌합니다." },
+            { id: "gatling", reqLv: 2, name: "고무고무 총난타", origin: "원피스", icon: "👊", type: "single", hits: 6, dmgMult: 0.7, desc: "잔상이 남을 정도로 기관총처럼 연타합니다. (6연타)" },
+            { id: "heal_light", reqLv: 2, name: "메딕 테란 치료", origin: "스타크래프트", icon: "🧪", type: "heal", healAmount: 80, desc: "메딕의 바이오 치료로 체력을 80 회복합니다." },
+            { id: "hurricane", reqLv: 2, name: "폭풍의 시", origin: "메이플스토리", icon: "🏹", type: "single", hits: 7, dmgMult: 0.5, desc: "폭풍처럼 빠른 속도로 화살을 7연속 쏟아붓습니다." },
+            { id: "sectumsempra", reqLv: 2, name: "섹툼셈프라", origin: "해리포터", icon: "🩸", type: "single", hits: 3, dmgMult: 1.3, desc: "보이지 않는 날붙이 주문으로 대상을 3번 벱니다." },
+            { id: "death_lotus", reqLv: 2, name: "죽음의 연꽃", origin: "LoL", icon: "🔪", type: "aoe", targets: 5, hits: 4, dmgMult: 0.7, desc: "카타리나가 단도를 사방으로 폭풍 던집니다. (4연타)" },
+
+            // Level 3 (21-30)
+            { id: "gear3", reqLv: 3, name: "기어 써드 뼈 풍선", origin: "원피스", icon: "🦶", type: "aoe", targets: 4, hits: 1, dmgMult: 3.0, desc: "신체를 거대화하여 적 무리를 짓밟습니다." },
+            { id: "serious_punch", reqLv: 3, name: "사이타마 진심 펀치", origin: "원펀맨", icon: "💥", type: "single", hits: 1, dmgMult: 8.0, desc: "진심을 담은 한 방으로 대기를 갈라버립니다!" },
+            { id: "sudden_raid", reqLv: 3, name: "써든 레이드", origin: "메이플스토리", icon: "🔥", type: "aoe", targets: 5, hits: 3, dmgMult: 1.5, desc: "화염의 동맹원들을 소환해 화면 전체를 뒤덮습니다." },
+            { id: "nuke", reqLv: 3, name: "고스트 뉴클리어", origin: "스타크래프트", icon: "☢️", type: "aoe", targets: 5, hits: 1, dmgMult: 6.0, isNuke: true, desc: "핵미사일을 낙하시켜 섬광과 함께 몰살합니다." },
+            { id: "avada", reqLv: 3, name: "아바다 케다브라", origin: "해리포터", icon: "🟢", type: "single", hits: 1, dmgMult: 10.0, desc: "금지된 즉사 저주로 단일 적을 즉시 궤멸시킵니다." },
+            { id: "conqueror", reqLv: 3, name: "패왕색 패기", origin: "원피스", icon: "👁️", type: "aoe", targets: 5, hits: 1, dmgMult: 4.0, desc: "왕의 기패로 전장에 있는 모든 적을 번뜩이게 타격합니다." },
+            { id: "serious_table", reqLv: 3, name: "진심 밥상뒤엎기", origin: "원펀맨", icon: "🧱", type: "aoe", targets: 5, hits: 2, dmgMult: 2.5, desc: "지반 전체를 뒤엎어 파편으로 전체를 난사합니다." },
+            { id: "genesis", reqLv: 3, name: "비숍 제네시스", origin: "메이플스토리", icon: "✨", type: "aoe", targets: 5, hits: 1, dmgMult: 7.0, desc: "신성한 빛의 기둥을 내리쳐 화면 전역을 멸합니다." },
+            { id: "infinity", reqLv: 3, name: "메이플 인피니티", origin: "메이플스토리", icon: "🌟", type: "buff", buffType: "all", buffTurns: 5, desc: "5턴 간 모든 능력치 및 치명타율이 극상승합니다!" },
+            { id: "last_breath", reqLv: 3, name: "야스오 최후의 숨결", origin: "LoL", icon: "🌪️", type: "aoe", targets: 5, hits: 5, dmgMult: 1.2, desc: "공중에 뜬 적들에게 끊임없는 검격을 퍼붓습니다." },
+
+            // Level 4 (31-40)
+            { id: "nika", reqLv: 4, name: "기어 5 태양의 신 니카", origin: "원피스", icon: "☀️", type: "aoe", targets: 5, hits: 3, dmgMult: 3.0, desc: "해탈한 신의 형태로 번개를 던져 적들을 연타합니다." },
+            { id: "serious_head", reqLv: 4, name: "진심 박치기", origin: "원펀맨", icon: "👨‍🦲", type: "single", hits: 1, dmgMult: 12.0, desc: "대머리의 충격적인 강도로 충격파를 전달합니다." },
+            { id: "asura", reqLv: 4, name: "조로 아수라 발도 망해", origin: "원피스", icon: "⚔️", type: "single", hits: 9, dmgMult: 1.5, desc: "귀신의 환영을 둘러 9연속으로 차단합니다." },
+            { id: "carrier", reqLv: 4, name: "캐리어 인터셉터 함대", origin: "스타크래프트", icon: "🛸", type: "aoe", targets: 5, hits: 8, dmgMult: 0.8, desc: "요격기 소대를 출격시켜 적 진영을 폭격합니다." },
+            { id: "elder_wand", reqLv: 4, name: "딱나무 지팡이 신벌", origin: "해리포터", icon: "🪄", type: "single", hits: 1, dmgMult: 15.0, desc: "죽음의 성물 힘으로 절절한 붕괴 대미지를 입깁니다." },
+            { id: "rifle", reqLv: 4, name: "고무고무 라이플", origin: "원피스", icon: "🌀", type: "single", hits: 2, dmgMult: 2.2, desc: "팔을 회전시켜 비틀린 강력 타격을 날립니다." },
+            { id: "sneezing", reqLv: 4, name: "진심 재채기", origin: "원펀맨", icon: "🤧", type: "aoe", targets: 5, hits: 1, dmgMult: 4.8, desc: "목성 가스를 날려버린 재채기 충격파 공격!" },
+            { id: "meso_explosion", reqLv: 4, name: "메조 디스럽션", origin: "메이플스토리", icon: "💰", type: "aoe", targets: 5, hits: 3, bonusGold: 200, dmgMult: 1.4, desc: "메소를 폭발시켜 대미지를 주고 200 골드를 수집합니다." },
+            { id: "zealot_shield", reqLv: 4, name: "플라즈마 실드", origin: "스타크래프트", icon: "🛡️", type: "buff", buffType: "shield", buffTurns: 4, desc: "4턴 동안 적에게 받는 피해가 60% 감소합니다." },
+            { id: "crucio", reqLv: 4, name: "크루시오 (극통 저주)", origin: "해리포터", icon: "⚡", type: "single", hits: 4, dmgMult: 1.8, desc: "극심한 고통의 저주로 대상을 4연속 고문합니다." },
+
+            // Level 5 (41-50)
+            { id: "lion_song", reqLv: 5, name: "사자의 노래", origin: "원피스", icon: "⚔️", type: "single", hits: 1, dmgMult: 6.2, desc: "조로의 일도류 발도술! 단일 적을 베어 가릅니다." },
+            { id: "rock_smash", reqLv: 5, name: "진심 암석 깨기", origin: "원펀맨", icon: "🪨", type: "single", hits: 3, dmgMult: 2.1, desc: "바위를 사방으로 던져 3번 강력하게 파괴합니다." },
+            { id: "mark_of_night", reqLv: 5, name: "마크 오브 나이트로드", origin: "메이플스토리", icon: "🗡️", type: "aoe", targets: 5, hits: 6, dmgMult: 0.6, desc: "표창을 전방위에 6연속 흩뿌려 공격합니다." },
+            { id: "archon_psionic", reqLv: 5, name: "대파쇄 에너지", origin: "스타크래프트", icon: "🔮", type: "single", hits: 1, dmgMult: 6.5, desc: "집정관의 사이오닉 충격파로 대미지를 꽂습니다." },
+            { id: "final_spark", reqLv: 5, name: "최종 혁명 (파이널 스파크)", origin: "LoL", icon: "✨", type: "aoe", targets: 5, hits: 1, dmgMult: 4.5, desc: "럭스의 광대한 마법 섬광 기둥을 발사합니다." },
+            { id: "diable_jambe", reqLv: 5, name: "디아블 잠브", origin: "원피스", icon: "🦵", type: "single", hits: 3, dmgMult: 2.2, desc: "상디의 마찰열 다리로 3연속 난타를 가합니다." },
+            { id: "fist_inrage", reqLv: 5, name: "피스트 인레이지", origin: "메이플스토리", icon: "🥊", type: "single", hits: 8, dmgMult: 0.8, desc: "바이퍼의 분노한 주먹 난사! 8번 연속 공격합니다." },
+            { id: "seeker_missile", reqLv: 5, name: "추적 미사일", origin: "스타크래프트", icon: "🚀", type: "aoe", targets: 5, hits: 1, dmgMult: 4.6, desc: "밤유령의 유도 미사일로 적 전체를 폭격합니다." },
+            { id: "expelliarmus", reqLv: 5, name: "엑스펠리아르무스", origin: "해리포터", icon: "🪄", type: "single", hits: 1, bonusGold: 200, dmgMult: 4.0, desc: "무기 해제 마법으로 골드를 강탈합니다." },
+            { id: "death_mark", reqLv: 5, name: "죽음의 표식", origin: "LoL", icon: "🥷", type: "single", hits: 2, dmgMult: 3.5, desc: "제드의 그림자 분신으로 급습해 타격합니다." },
+
+            // Level 6 (51-60)
+            { id: "earthquake", reqLv: 6, name: "지진파 격쇄", origin: "원피스", icon: "🌊", type: "aoe", targets: 5, hits: 1, dmgMult: 5.2, desc: "흰수염의 대기를 가르는 흔들흔들 열매 파동!" },
+            { id: "saitama_dash", reqLv: 6, name: "전력 질주", origin: "원펀맨", icon: "🏃", type: "buff", buffType: "all", buffTurns: 4, desc: "지구를 순식간에 돌 정도로 달려 전능 버프 획득!" },
+            { id: "big_huge_cannon", reqLv: 6, name: "빅 휴즈 캐논", origin: "메이플스토리", icon: "💣", type: "aoe", targets: 5, hits: 3, dmgMult: 1.8, desc: "캐논슈터의 거대 포탄을 3연속 발사합니다." },
+            { id: "stupefy", reqLv: 6, name: "스투페파이", origin: "해리포터", icon: "💫", type: "single", hits: 1, dmgMult: 5.5, desc: "마비 충격 주문으로 단일 적을 기절 타격합니다." },
+            { id: "spinning_axe", reqLv: 6, name: "회전 도끼", origin: "LoL", icon: "🪓", type: "single", hits: 3, bonusGold: 180, dmgMult: 2.0, desc: "드레이븐의 도끼 던지기로 환호와 골드를 받습니다." },
+            { id: "fire_emperor", reqLv: 6, name: "대염제", origin: "원피스", icon: "☀️", type: "aoe", targets: 5, isNuke: true, dmgMult: 6.0, desc: "에이스의 거대한 화염구를 던져 멸망시킵니다." },
+            { id: "dragon_breath", reqLv: 6, name: "드래곤 브레스", origin: "메이플스토리", icon: "🐉", type: "aoe", targets: 5, hits: 4, dmgMult: 1.4, desc: "에반과 미르가 전방위에 화염 브레스를 분사합니다." },
+            { id: "carrier_attack", reqLv: 6, name: "인터셉터 출격", origin: "스타크래프트", icon: "🛸", type: "aoe", targets: 5, hits: 8, dmgMult: 0.7, desc: "요격기 8대가 몰려들어 함포 사격을 퍼붓습니다." },
+            { id: "petrificus", reqLv: 6, name: "페트리피쿠스 토탈루스", origin: "해리포터", icon: "🗿", type: "single", hits: 1, dmgMult: 7.2, desc: "전신 마비 저주로 굳게 만들어 강력 타격합니다." },
+            { id: "grand_challenge", reqLv: 6, name: "급소 타격", origin: "LoL", icon: "🤺", type: "single", hits: 4, dmgMult: 1.9, desc: "피오라가 사방의 급소를 연속 4번 찌릅니다." },
+
+            // Level 7 (61-70)
+            { id: "room_slash", reqLv: 7, name: "ROOM - 절단", origin: "원피스", icon: "📐", type: "aoe", targets: 5, hits: 1, dmgMult: 5.5, desc: "트라팔가 로의 수술 공간 내 공간 가르기!" },
+            { id: "absolute_kill", reqLv: 7, name: "앱솔루트 킬", origin: "메이플스토리", icon: "☯️", type: "single", hits: 2, dmgMult: 3.8, desc: "루미너스의 빛과 어둠 검기로 2연속 확정 사살!" },
+            { id: "cloaking_force", reqLv: 7, name: "클락킹 급습", origin: "스타크래프트", icon: "👻", type: "buff", buffType: "crit", buffTurns: 5, desc: "은폐 상태에 돌입해 5턴 간 치명타율 +50%!" },
+            { id: "piertotum", reqLv: 7, name: "석상 파수꾼 소환", origin: "해리포터", icon: "🏰", type: "heal", healAmount: 250, desc: "석상들을 불러내 HP 250을 회복시킵니다." },
+            { id: "trueshot_barrage", reqLv: 7, name: "정사각 조준 사격", origin: "LoL", icon: "🏹", type: "aoe", targets: 5, hits: 1, dmgMult: 5.8, desc: "이즈리얼의 관통 에너지파를 조준 발사합니다." },
+            { id: "black_sword", reqLv: 7, name: "흑도 참격", origin: "원피스", icon: "🗡️", type: "single", hits: 1, dmgMult: 8.0, desc: "미호크의 세계 최강 검사 흑도 참격!" },
+            { id: "macha_region", reqLv: 7, name: "마하의 영역", origin: "메이플스토리", icon: "❄️", type: "aoe", targets: 5, hits: 3, dmgMult: 2.1, desc: "아란이 폴암을 꽂아 전 범위를 냉동시킵니다." },
+            { id: "ultralisk_blade", reqLv: 7, name: "카이저 클레이브", origin: "스타크래프트", icon: "🦂", type: "aoe", targets: 5, hits: 2, dmgMult: 3.0, desc: "울트라리스크 거대 칼날로 2연속 쓸어버립니다." },
+            { id: "incendio_dark", reqLv: 7, name: "악마의 화염구", origin: "해리포터", icon: "🖤", type: "single", hits: 1, dmgMult: 8.2, desc: "검은 화염구를 낙하시켜 피해를 박아넣습니다." },
+            { id: "dragon_rage", reqLv: 7, name: "용의 분노 (이쿠!)", origin: "LoL", icon: "🦵", type: "single", hits: 1, dmgMult: 8.5, desc: "리신의 용의 섬광 차기로 단일 적을 강타합니다." },
+
+            // Level 8 (71-80)
+            { id: "napoleon_punish", reqLv: 8, name: "나폴레옹 신벌", origin: "원피스", icon: "👒", type: "aoe", targets: 5, hits: 2, dmgMult: 3.2, desc: "빅맘의 마검을 휘둘러 적 전체를 2연속 쪼갭니다." },
+            { id: "garou_imitation", reqLv: 8, name: "극의 흉내", origin: "원펀맨", icon: "🥋", type: "single", hits: 10, dmgMult: 0.9, desc: "가로우가 신들의 무술을 모방해 10연타를 날립니다." },
+            { id: "sniping", reqLv: 8, name: "스나이핑", origin: "메이플스토리", icon: "🎯", type: "single", hits: 1, dmgMult: 9.0, desc: "신궁의 정밀 조준 사격으로 900% 대미지 적중!" },
+            { id: "blitz_hook", reqLv: 8, name: "로켓 손", origin: "LoL", icon: "🦾", type: "single", hits: 1, bonusGold: 300, dmgMult: 4.0, desc: "그랩으로 당겨 400% 대미지 및 300 골드 수집!" },
+            { id: "tatsumaki_meteor", reqLv: 8, name: "염동력 운석", origin: "원펀맨", icon: "☄️", type: "aoe", targets: 5, isNuke: true, dmgMult: 7.0, desc: "타츠마키가 우주 운석을 내려꽂아 멸망시킵니다." },
+            { id: "gear5_nika_dance", reqLv: 8, name: "태양신 해탈 춤", origin: "원피스", icon: "☀️", type: "buff", buffType: "all", buffTurns: 6, desc: "6턴 동안 전능 상태 및 대미지 3배 증가!" },
+            { id: "battleship_bomb", reqLv: 8, name: "배틀쉽 봄버", origin: "메이플스토리", icon: "🚢", type: "aoe", targets: 5, hits: 5, dmgMult: 1.6, desc: "메카닉 함포 사격으로 5연속 폭격합니다." },
+            { id: "aragog_web", reqLv: 8, name: "거미줄 봉인", origin: "해리포터", icon: "🕸️", type: "buff", buffType: "shield", buffTurns: 5, desc: "거미줄로 전장을 묶어 5턴 간 피해 70% 차단!" },
+            { id: "vayne_tumble", reqLv: 8, name: "구르기 결전", origin: "LoL", icon: "🏹", type: "single", hits: 3, dmgMult: 3.2, desc: "베인의 은화살 3연속 적중으로 상대를 파괴합니다." },
+            { id: "serious_revolve", reqLv: 8, name: "진심 회전 펀치", origin: "원펀맨", icon: "🌀", type: "single", hits: 1, dmgMult: 9.5, desc: "회전력을 실은 토네이도 진심 펀치 950% 대미지!" },
+
+            // Level 9 (81-90)
+            { id: "thunder_god", reqLv: 9, name: "태양신 벼락 던지기", origin: "원피스", icon: "⚡", type: "aoe", targets: 5, isNuke: true, dmgMult: 4.8, desc: "벼락을 손으로 잡아 2연속 멸망 대미지 투척!" },
+            { id: "omnipotent_punch", reqLv: 9, name: "전지전능 진심 신 펀치", origin: "원펀맨", icon: "🌌", type: "single", hits: 1, dmgMult: 12.0, desc: "은하계를 뒤흔드는 1200% 극대미지 일격!" },
+            { id: "maple_star_30", reqLv: 9, name: "메이플 신화 신기 소환", origin: "메이플스토리", icon: "🍁", type: "aoe", targets: 5, hits: 10, dmgMult: 1.2, desc: "메이플 신기들이 적 전체를 10연속 난도질합니다!" },
+            { id: "elder_wand_final", reqLv: 9, name: "딱나무 지팡이 파괴령", origin: "해리포터", icon: "🪄", type: "single", hits: 1, dmgMult: 15.0, desc: "단일 적을 무조건 소멸시키는 1500% 대미지!" },
+            { id: "baron_buff", reqLv: 9, name: "내셔 남작의 바론 버프", origin: "LoL", icon: "🐉", type: "buff", buffType: "all", buffTurns: 10, desc: "10턴 동안 모든 스텟 및 대미지 4배 극상승!" },
+            { id: "red_hawk", reqLv: 9, name: "고무고무 레드 호크", origin: "원피스", icon: "🔥", type: "single", hits: 2, dmgMult: 5.0, desc: "루피의 마찰 화염 주먹! 단일 대상에 2연속 폭딜!" },
+            { id: "serious_water", reqLv: 9, name: "진심 물대포", origin: "원펀맨", icon: "💧", type: "aoe", targets: 5, hits: 1, dmgMult: 8.5, desc: "사이타마가 손뼉을 쳐 수압 폭풍을 내뿜습니다." },
+            { id: "dark_knight_pierce", reqLv: 9, name: "다크나이트 피어스 십", origin: "메이플스토리", icon: "🗡️", type: "single", hits: 12, dmgMult: 0.8, desc: "어둠의 창으로 단일 대상을 12연속 찌릅니다." },
+            { id: "ghost_lockdown", reqLv: 9, name: "고스트 정밀 락다운", origin: "스타크래프트", icon: "🎯", type: "single", hits: 1, bonusGold: 500, dmgMult: 5.0, desc: "적 시스템을 마비시키고 500 골드를 탈취합니다." },
+            { id: "soul_steal", reqLv: 9, name: "영혼의 흡수 (영혼 감옥)", origin: "LoL", icon: "💀", type: "heal", healAmount: 400, desc: "적들의 정수를 흡수하여 HP 400을 대폭 회복!" },
+
+            // Level 10 Legend Ultimate (91-100)
+            { id: "bajrang_gun", reqLv: 10, name: "고무고무 바즈랑 건", origin: "원피스", icon: "🌋", type: "aoe", targets: 5, isNuke: true, dmgMult: 10.0, desc: "섬 크기의 거대 화염 주먹으로 적 무리를 짓밟습니다!" },
+            { id: "serious_sneeze_max", reqLv: 10, name: "진심 우주 파괴 재채기", origin: "원펀맨", icon: "🌌", type: "aoe", targets: 5, hits: 2, dmgMult: 6.0, desc: "행성 파괴급 충격파로 적 전체를 2연속 붕괴시킵니다." },
+            { id: "maple_ultimate_strike", reqLv: 10, name: "메이플 일격필살 오리진", origin: "메이플스토리", icon: "🍁", type: "single", hits: 15, dmgMult: 1.0, desc: "전설의 6차 오리진 스킬! 15연속 폭풍 타격!" },
+            { id: "deathly_hallows", reqLv: 10, name: "죽음의 성물 3종 통합", origin: "해리포터", icon: "🔺", type: "buff", buffType: "all", buffTurns: 12, desc: "12턴 동안 완전무결한 불사 및 전능 효과 부여!" },
+            { id: "ryze_realm_warp", reqLv: 10, name: "공간 왜곡 파동", origin: "LoL", icon: "🌀", type: "aoe", targets: 5, hits: 3, dmgMult: 4.0, desc: "라이즈의 시공간 파동으로 적 전체를 3연속 소멸시킵니다." },
+            { id: "king_cobra", reqLv: 10, name: "고무고무 킹 코브라", origin: "원피스", icon: "🐍", type: "single", hits: 4, dmgMult: 3.5, desc: "스네이크맨의 신속 추적 타격으로 4연속 공격!" },
+            { id: "serious_flip_planet", reqLv: 10, name: "진심 행성 뒤엎기", origin: "원펀맨", icon: "🪐", type: "aoe", targets: 5, isNuke: true, dmgMult: 11.0, desc: "행성 지각을 뒤엎어 1100% 멸망 대미지를 선사합니다." },
+            { id: "bishop_peacemaker", reqLv: 10, name: "비숍 피스메이커", origin: "메이플스토리", icon: "✝️", type: "heal", healAmount: 600, bonusGold: 600, desc: "신성한 오브를 날려 HP 600 회복 및 600 골드 획득!" },
+            { id: "battlecruiser_fleet", reqLv: 10, name: "함대 전탄 사격", origin: "스타크래프트", icon: "🚀", type: "aoe", targets: 5, hits: 6, dmgMult: 2.2, desc: "배틀크루저 편대가 나타나 6연속 전탄 폭격을 퍼붓습니다." },
+            { id: "homaman_god_strike", reqLv: 10, name: "호마맨 수능 1등급 신벌", origin: "수능마스터", icon: "👑", type: "aoe", targets: 5, isNuke: true, dmgMult: 20.0, desc: "모든 수능 영단어를 정복한 호마맨의 신화급 최강 종말 스킬!" }
+        ];
+
+        /* Shop Databases (Items, Fonts, Backgrounds) */
+        const shopItems = [
+            { id: "sword_wood", name: "메이플 목검", origin: "메이플스토리", icon: "🗡️", price: 150, type: "weapon", atk: 15, desc: "기본적인 나무 검. 공격력 +15" },
+            { id: "sword_long", name: "롤 롱소드", origin: "LoL", icon: "⚔️", price: 350, type: "weapon", atk: 35, desc: "공격력 +35를 올려주는 신뢰의 칼날!" },
+            { id: "zoro_sword", name: "조로의 화도일문자", origin: "원피스", icon: "🗡️", price: 1000, type: "weapon", atk: 120, desc: "세계 최강 검사를 향한 명검. 공격력 +120" },
+            { id: "sanji_bento", name: "상디의 특제 해군 도시락", origin: "원피스", icon: "🍱", price: 200, type: "consumable", buffType: "sanjiBento", buffTurns: 5, bonusAtk: 50, desc: "5턴 동안 추가 공격력 +50 & HP 50 회복!" },
+            { id: "hp_potion", name: "하얀 포션", origin: "메이플스토리", icon: "🧪", price: 100, type: "consumable", heal: 100, desc: "체력을 즉시 100 회복합니다." },
+            { id: "butter_beer", name: "버터맥주", origin: "해리포터", icon: "🍺", price: 300, type: "consumable", buffType: "butterBeer", buffTurns: 4, bonusCrit: 30, desc: "4턴 동안 치명타율 +30% 버프!" },
+            { id: "marine_stim", name: "마린의 비상 스팀팩", origin: "스타크래프트", icon: "💉", price: 500, type: "consumable", buffType: "marineStim", buffTurns: 3, bonusAtk: 100, desc: "3턴 동안 공격력 +100 극대 상승!" },
+            { id: "saitama_noodle", name: "사이타마 곱배기 라멘", origin: "원펀맨", icon: "🍜", price: 800, type: "consumable", buffType: "saitamaBuff", buffTurns: 6, bonusAtk: 150, desc: "6턴 동안 공격력 +150 버프!" }
+        ];
+
+        const shopFonts = [
+            { id: "font_jua", name: "기본 귀염 주아체", family: "'Jua', sans-serif", price: 0, icon: "🅰️", desc: "기본 제공되는 유쾌하고 정감 있는 글꼴" },
+            { id: "font_pixel", name: "레트로 둥근모 픽셀체", family: "'DungGeunMo', monospace", price: 150, icon: "👾", desc: "오락실 감성을 제대로 살린 픽셀 폰트" },
+            { id: "font_gamja", name: "수능 감자꽃 필기체", family: "'Gamja Flower', cursive", price: 250, icon: "✏️", desc: "손으로 예쁘게 꾹꾹 적어 내려간 듯한 필기체" },
+            { id: "font_dohyeon", name: "열정 도현 돋움체", family: "'Do Hyeon', sans-serif", price: 300, icon: "📢", desc: "굵고 힘찬 붓터치가 느껴지는 파워풀 폰트" },
+            { id: "font_batang", name: "고급 바탕명조체", family: "'Gowun Batang', serif", price: 400, icon: "📜", desc: "클래식하고 진중한 전설 용사의 바탕체" }
+        ];
+
+        const shopBgs = [
+            { id: "bg_default", name: "기본 심야 던전", css: "bg-gradient-to-b from-indigo-950/20 via-transparent to-slate-950/80", price: 0, icon: "🌌", desc: "기본 제공되는 은은한 무지개 던전 배경" },
+            { id: "bg_sunset", name: "붉은 노을 석양 전장", css: "bg-gradient-to-b from-rose-950/40 via-amber-950/20 to-slate-950/90", price: 200, icon: "🌅", desc: "결전의 분위기가 물씬 나는 붉은 타오르는 석양" },
+            { id: "bg_ocean", name: "신비로운 심해 바다", css: "bg-gradient-to-b from-cyan-950/50 via-teal-950/30 to-slate-950/90", price: 350, icon: "🌊", desc: "깊은 바닷속 청량하고 신비로운 아틀란티스 테마" },
+            { id: "bg_cyber", name: "사이버 네온 네트", css: "bg-gradient-to-b from-fuchsia-950/50 via-purple-950/30 to-slate-950/90", price: 500, icon: "🔮", desc: "화려한 네온 컬러가 빛나는 사이버 스페이스" },
+            { id: "bg_gold", name: "황금빛 신전 전장", css: "bg-gradient-to-b from-amber-900/50 via-yellow-950/30 to-slate-950/90", price: 800, icon: "🏛️", desc: "황금빛으로 찬란하게 빛나는 전설의 영웅 신전" }
+        ];
+
+        /* Game State */
+        let gameState = {
+            level: 1,
+            exp: 0,
+            maxExp: 50,
+            hp: 100,
+            maxHp: 100,
+            gold: 0,
+            statPoints: 0,
+            str: 10,
+            dex: 5,
+            vit: 100,
+            intMult: 100,
+            stageWorld: 1,
+            stageNum: 1,
+            combo: 0,
+            fontSize: "medium", // 'small', 'medium', 'large'
+            bgmPlaying: false,
+            activeBuffs: { atk: 0, crit: 0, shield: 0, all: 0, sanjiBento: 0, butterBeer: 0, marineStim: 0, saitamaBuff: 0 },
+            customWords: [],
+            unlockedSkills: ["pistol", "whip", "steampack", "lumos", "q_strike"],
+            inventory: [],
+            ownedBgms: ["bgm1"],
+            equippedBgm: "bgm1",
+            ownedFonts: ["font_jua"],
+            equippedFont: "font_jua",
+            ownedBgs: ["bg_default"],
+            equippedBg: "bg_default"
+        };
+
+        let activeWords = [];
+        let currentQuiz = null;
+        let currentMobs = [];
+        let activeShopTab = "items";
+
+        /* Initialization On Window Load */
+        window.onload = function() {
+            loadSavedGameData();
+            applyFontSize(gameState.fontSize || "medium");
+            applyEquippedCustomizations();
+            prepareWordLibrary();
+            spawnEnemyWave();
+            generateNextQuiz();
+            updateBgmDropdownUI();
+            updateUI();
+        };
+
+        /* Calculate Total Attack Power */
+        function getTotalAtk() {
+            let baseAtk = gameState.str;
+            
+            if (gameState.inventory.includes("sword_wood")) baseAtk += 15;
+            if (gameState.inventory.includes("sword_long")) baseAtk += 35;
+            if (gameState.inventory.includes("zoro_sword")) baseAtk += 120;
+
+            if (gameState.activeBuffs.sanjiBento > 0) baseAtk += 50;
+            if (gameState.activeBuffs.marineStim > 0) baseAtk += 100;
+            if (gameState.activeBuffs.saitamaBuff > 0) baseAtk += 150;
+
+            if (gameState.activeBuffs.atk > 0 || gameState.activeBuffs.all > 0) {
+                baseAtk = Math.round(baseAtk * 1.5);
+            }
+
+            return baseAtk;
+        }
+
+        function saveGameData() {
+            localStorage.setItem('homaman_save_v5_bgm', JSON.stringify(gameState));
+        }
+
+        function loadSavedGameData() {
+            const saved = localStorage.getItem('homaman_save_v5_bgm');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    gameState = { ...gameState, ...parsed };
+                } catch(e) {
+                    console.error(e);
+                }
+            }
+        }
+
+        function changeFontSize(size) {
+            gameState.fontSize = size;
+            applyFontSize(size);
+            saveGameData();
+        }
+
+        function applyFontSize(size) {
+            const fontCssTarget = document.getElementById('fontSizeStyles');
+            const btnS = document.getElementById('fontBtn-small');
+            const btnM = document.getElementById('fontBtn-medium');
+            const btnL = document.getElementById('fontBtn-large');
+
+            btnS.className = "px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-300";
+            btnM.className = "px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-300";
+            btnL.className = "px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-300";
+
+            if (size === 'small') {
+                fontCssTarget.innerHTML = `body { font-size: 14px !important; }`;
+                btnS.className = "px-2 py-0.5 rounded font-bold bg-amber-600 text-white";
+            } else if (size === 'large') {
+                fontCssTarget.innerHTML = `body { font-size: 18px !important; }`;
+                btnL.className = "px-2 py-0.5 rounded font-bold bg-amber-600 text-white";
+            } else {
+                fontCssTarget.innerHTML = `body { font-size: 16px !important; }`;
+                btnM.className = "px-2 py-0.5 rounded font-bold bg-amber-600 text-white";
+            }
+        }
+
+        function applyEquippedCustomizations() {
+            // Apply Font
+            const fontObj = shopFonts.find(f => f.id === gameState.equippedFont) || shopFonts[0];
+            const fontStyleEl = document.getElementById('customFontStyles');
+            fontStyleEl.innerHTML = `
+                body, button, input, select, textarea {
+                    font-family: ${fontObj.family} !important;
+                    user-select: none;
+                }
+                .font-pixel {
+                    font-family: 'VT323', monospace;
+                }
+            `;
+
+            // Apply Background
+            const bgObj = shopBgs.find(b => b.id === gameState.equippedBg) || shopBgs[0];
+            const bgOverlayEl = document.getElementById('battleBgOverlay');
+            if (bgOverlayEl) {
+                bgOverlayEl.className = `absolute inset-0 ${bgObj.css} pointer-events-none transition-all duration-500`;
+            }
+
+            // Apply Audio Source
+            const curBgm = shopBgms.find(b => b.id === gameState.equippedBgm) || shopBgms[0];
+            const audioPlayer = document.getElementById('bgmAudioPlayer');
+            if (audioPlayer) {
+                const newSrc = curBgm.file;
+                if (!audioPlayer.src.endsWith(encodeURIComponent(newSrc)) && !audioPlayer.src.endsWith(newSrc)) {
+                    audioPlayer.src = newSrc;
+                    if (gameState.bgmPlaying) {
+                        const playPromise = audioPlayer.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(error => {
+                                console.log("모바일 자동 재생 정책으로 인해 플레이어 터치가 필요합니다.");
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        /* Mobile-friendly BGM Audio Play Logic */
+        function toggleBgmPlay() {
+            const audioPlayer = document.getElementById('bgmAudioPlayer');
+            const stateText = document.getElementById('bgmStateText');
+            const toggleBtn = document.getElementById('bgmToggleBtn');
+
+            if (!audioPlayer.src || audioPlayer.src === "") {
+                const curBgm = shopBgms.find(b => b.id === gameState.equippedBgm) || shopBgms[0];
+                audioPlayer.src = curBgm.file;
+            }
+
+            if (gameState.bgmPlaying) {
+                audioPlayer.pause();
+                gameState.bgmPlaying = false;
+                stateText.innerText = "BGM 켜기";
+                toggleBtn.className = "px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold flex items-center gap-1 touch-manipulation";
+            } else {
+                const playPromise = audioPlayer.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        gameState.bgmPlaying = true;
+                        stateText.innerText = "BGM 끄기";
+                        toggleBtn.className = "px-2 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold flex items-center gap-1 touch-manipulation";
+                    }).catch(err => {
+                        alert("모바일 브라우저 오디오 제한 또는 음원 파일(" + gameState.equippedBgm + ".mp3)을 찾을 수 없습니다. HTML과 같은 폴더에 파일이 있는지 확인해 주세요.");
+                    });
+                }
+            }
+            saveGameData();
+        }
+
+        function changeEquippedBgm(bgmId) {
+            gameState.equippedBgm = bgmId;
+            applyEquippedCustomizations();
+            if (gameState.bgmPlaying) {
+                const audioPlayer = document.getElementById('bgmAudioPlayer');
+                audioPlayer.play().catch(() => {});
+            }
+            saveGameData();
+            updateUI();
+        }
+
+        function updateBgmDropdownUI() {
+            const selectEl = document.getElementById('bgmSelectDropdown');
+            if (!selectEl) return;
+            selectEl.innerHTML = '';
+
+            gameState.ownedBgms.forEach(id => {
+                const bgmObj = shopBgms.find(b => b.id === id);
+                if (bgmObj) {
+                    const option = document.createElement('option');
+                    option.value = bgmObj.id;
+                    option.innerText = `${bgmObj.icon} ${bgmObj.name}`;
+                    if (bgmObj.id === gameState.equippedBgm) option.selected = true;
+                    selectEl.appendChild(option);
+                }
+            });
+        }
+
+        function resetGameProgress() {
+            if (confirm("정말로 호마맨의 성장을 초기화하시겠습니까?")) {
+                localStorage.removeItem('homaman_save_v5_bgm');
+                location.reload();
+            }
+        }
+
+        function prepareWordLibrary() {
+            if (gameState.customWords && gameState.customWords.length > 0) {
+                activeWords = gameState.customWords;
+            } else {
+                activeWords = defaultWords;
+            }
+            document.getElementById('quizCounter').innerText = `단어 라이브러리: ${activeWords.length}개 보관 중`;
+        }
+
+        /* Update UI Overhaul */
+        function updateUI() {
+            document.getElementById('levelBadge').innerText = `Lv.${gameState.level}`;
+            document.getElementById('hpText').innerText = `${gameState.hp} / ${gameState.vit}`;
+            document.getElementById('hpBar').style.width = `${Math.max(0, (gameState.hp / gameState.vit) * 100)}%`;
+
+            document.getElementById('expText').innerText = `${gameState.exp} / ${gameState.maxExp}`;
+            document.getElementById('expBar').style.width = `${Math.min(100, (gameState.exp / gameState.maxExp) * 100)}%`;
+
+            document.getElementById('goldVal').innerText = `💰 ${gameState.gold}`;
+            document.getElementById('shopGoldVal').innerText = `💰 ${gameState.gold}`;
+            document.getElementById('comboVal').innerText = `${gameState.combo} COMBO`;
+            document.getElementById('statPointsVal').innerText = gameState.statPoints;
+
+            document.getElementById('strVal').innerText = gameState.str;
+            document.getElementById('dexVal').innerText = `${gameState.dex}%`;
+            document.getElementById('vitVal').innerText = gameState.vit;
+            document.getElementById('intVal').innerText = `${gameState.intMult}%`;
+
+            document.getElementById('totalAtkVal').innerText = getTotalAtk();
+
+            document.getElementById('stageDisplay').innerText = `${gameState.stageWorld}-${gameState.stageNum}`;
+
+            const heroAvatar = document.getElementById('heroAvatar');
+            if (gameState.level >= 10) {
+                heroAvatar.innerText = "👑👨‍🦲";
+                document.getElementById('heroTitle').innerText = "전설의 수능 마스터";
+            } else if (gameState.level >= 5) {
+                heroAvatar.innerText = "⚡👨‍🦲";
+                document.getElementById('heroTitle').innerText = "영단어 슈퍼 용사";
+            } else {
+                heroAvatar.innerText = "👨‍🦲";
+                document.getElementById('heroTitle').innerText = "수능 영단어 격파자";
+            }
+
+            updateBgmDropdownUI();
+            renderBuffStatusUI();
+            renderQuickSkillListUI();
+            renderInventoryUI();
+        }
+
+        /* Render Active Buff Status Panel */
+        function renderBuffStatusUI() {
+            const buffContainer = document.getElementById('activeBuffBadges');
+            buffContainer.innerHTML = '';
+
+            const buffLabels = {
+                atk: { name: "스킬 공업 1.5배", icon: "⚔️" },
+                crit: { name: "치명타 폭증", icon: "⚡" },
+                shield: { name: "피해 감쇄 실드", icon: "🛡️" },
+                all: { name: "전능 버프", icon: "🌟" },
+                sanjiBento: { name: "상디 도시락 (+50공)", icon: "🍱" },
+                butterBeer: { name: "버터맥주 (+30%크리)", icon: "🍺" },
+                marineStim: { name: "스팀팩 버프 (+100공)", icon: "💉" },
+                saitamaBuff: { name: "사이타마 라멘 (+150공)", icon: "🍜" }
+            };
+
+            let activeCount = 0;
+            Object.keys(gameState.activeBuffs).forEach(k => {
+                const turns = gameState.activeBuffs[k];
+                if (turns > 0) {
+                    activeCount++;
+                    const info = buffLabels[k] || { name: k, icon: "✨" };
+                    const badge = document.createElement('div');
+                    badge.className = "bg-indigo-900/80 border border-indigo-400/60 text-indigo-100 text-xs font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow animate-pulse font-pixel";
+                    badge.innerHTML = `<span>${info.icon} ${info.name}</span> <span class="text-amber-300">(${turns}턴)</span>`;
+                    buffContainer.appendChild(badge);
+                }
+            });
+
+            if (activeCount === 0) {
+                buffContainer.innerHTML = `<span class="text-xs text-slate-500 italic">적용 중인 버프 없음</span>`;
+            }
+        }
+
+        /* Render Quick Skill Display Panel Under Stats */
+        function renderQuickSkillListUI() {
+            const container = document.getElementById('quickSkillList');
+            container.innerHTML = '';
+
+            const unlockedList = masterSkills.filter(s => gameState.unlockedSkills.includes(s.id));
+            document.getElementById('skillCountText').innerText = `${unlockedList.length}종 해금`;
+
+            unlockedList.forEach(s => {
+                const badge = document.createElement('span');
+                badge.className = "text-xs bg-purple-950/80 text-purple-200 border border-purple-500/40 px-2 py-0.5 rounded-md flex items-center gap-1 font-bold";
+                badge.title = `${s.name}: ${s.desc}`;
+                badge.innerHTML = `${s.icon} <span class="font-pixel text-xs">${s.name}</span>`;
+                container.appendChild(badge);
+            });
+        }
+
+        function renderInventoryUI() {
+            const container = document.getElementById('equippedItemsList');
+            container.innerHTML = '';
+
+            let badgesHtml = '';
+
+            // Weapons
+            gameState.inventory.forEach(itemId => {
+                const item = shopItems.find(i => i.id === itemId);
+                if (item) {
+                    badgesHtml += `<span class="text-xs bg-amber-950/60 text-amber-200 border border-amber-500/40 px-2 py-0.5 rounded-lg font-bold flex items-center gap-1">${item.icon} ${item.name}</span>`;
+                }
+            });
+
+            // Equipped BGM Badge
+            const curBgm = shopBgms.find(b => b.id === gameState.equippedBgm);
+            if (curBgm) {
+                badgesHtml += `<span class="text-xs bg-rose-950/60 text-rose-200 border border-rose-500/40 px-2 py-0.5 rounded-lg font-bold flex items-center gap-1">${curBgm.icon} ${curBgm.name}</span>`;
+            }
+
+            // Equipped Font Badge
+            const curFont = shopFonts.find(f => f.id === gameState.equippedFont);
+            if (curFont) {
+                badgesHtml += `<span class="text-xs bg-purple-950/60 text-purple-200 border border-purple-500/40 px-2 py-0.5 rounded-lg font-bold flex items-center gap-1">${curFont.icon} ${curFont.name}</span>`;
+            }
+
+            // Equipped Background Badge
+            const curBg = shopBgs.find(b => b.id === gameState.equippedBg);
+            if (curBg) {
+                badgesHtml += `<span class="text-xs bg-cyan-950/60 text-cyan-200 border border-cyan-500/40 px-2 py-0.5 rounded-lg font-bold flex items-center gap-1">${curBg.icon} ${curBg.name}</span>`;
+            }
+
+            container.innerHTML = badgesHtml || `<span class="text-xs text-slate-500 italic">보유 커스텀 아이템이 없습니다. 상점에서 확인해 보세요!</span>`;
+        }
+
+        function addStat(type) {
+            if (gameState.statPoints <= 0) {
+                showBattleLog("⚠️ 사용 가능한 스텟 포인트가 없습니다! 레벨업하여 포인트(✨)를 획득하세요.");
+                return;
+            }
+
+            gameState.statPoints--;
+            if (type === 'str') gameState.str += 5;
+            else if (type === 'dex') gameState.dex += 2;
+            else if (type === 'vit') {
+                gameState.vit += 20;
+                gameState.hp += 20;
+            } else if (type === 'int') gameState.intMult += 10;
+
+            saveGameData();
+            updateUI();
+            showBattleLog(`✨ [스텟 투자 완료] 능력치가 정상적으로 증가했습니다!`);
+        }
+
+        function spawnEnemyWave() {
+            const isBossStage = (gameState.stageNum === 5);
+            currentMobs = [];
+
+            if (isBossStage) {
+                const bossHp = 500 * gameState.stageWorld * 2;
+                currentMobs.push({
+                    id: 1,
+                    name: `🔥 W${gameState.stageWorld} 수능 괴수 대보스`,
+                    isBoss: true,
+                    maxHp: bossHp,
+                    hp: bossHp,
+                    atk: 25 * gameState.stageWorld,
+                    icon: "👹"
+                });
+                showBattleLog(`⚠️ [보스 출현] ${gameState.stageWorld}월드 마리오 보스가 나타났습니다! 스킬을 난사해 격파하세요!`);
+            } else {
+                const mobCount = Math.min(5, gameState.stageNum + 1);
+                const baseHp = 100 + (gameState.stageWorld * 40);
+                const mobIcons = ["👾", "🦇", "👺", "💀", "👻", "🕷️", "🐉"];
+
+                for (let i = 0; i < mobCount; i++) {
+                    const icon = mobIcons[Math.floor(Math.random() * mobIcons.length)];
+                    currentMobs.push({
+                        id: i + 1,
+                        name: `단어 괴물 #${i + 1}`,
+                        isBoss: false,
+                        maxHp: baseHp,
+                        hp: baseHp,
+                        atk: 8 + (gameState.stageWorld * 3),
+                        icon: icon
+                    });
+                }
+                showBattleLog(`⚔️ Stage ${gameState.stageWorld}-${gameState.stageNum}: ${mobCount}마리의 몬스터 무리가 앞을 막아섭니다!`);
+            }
+
+            renderEnemyMobContainer();
+        }
+
+        function renderEnemyMobContainer() {
+            const container = document.getElementById('mobContainer');
+            container.innerHTML = '';
+
+            currentMobs.forEach(mob => {
+                const mobNode = document.createElement('div');
+                mobNode.id = `mobSprite-${mob.id}`;
+                mobNode.className = "flex flex-col items-center transition-all duration-300";
+
+                const hpPercent = Math.max(0, (mob.hp / mob.maxHp) * 100);
+
+                mobNode.innerHTML = `
+                    <div class="w-12 sm:w-16 bg-slate-950 border border-slate-800 rounded-full h-2.5 mb-1 p-0.5 overflow-hidden">
+                        <div class="bg-rose-500 h-full rounded-full transition-all duration-300" style="width: ${hpPercent}%;"></div>
+                    </div>
+                    <span class="${mob.isBoss ? 'text-6xl sm:text-7xl animate-pulse' : 'text-4xl sm:text-5xl'} drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]">${mob.icon}</span>
+                    <span class="text-xs bg-slate-950/90 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-full mt-0.5 font-bold font-pixel">${mob.hp}/${mob.maxHp}</span>
+                `;
+                container.appendChild(mobNode);
+            });
+        }
+
+        function generateNextQuiz() {
+            if (activeWords.length === 0) return;
+
+            const targetObj = activeWords[Math.floor(Math.random() * activeWords.length)];
+            const isWordQuestion = Math.random() < 0.5;
+
+            const questionText = isWordQuestion ? targetObj.word : targetObj.meaning;
+            const correctAnswer = isWordQuestion ? targetObj.meaning : targetObj.word;
+
+            let wrongAnswers = [];
+            while (wrongAnswers.length < 2) {
+                const randObj = activeWords[Math.floor(Math.random() * activeWords.length)];
+                const wrongCandidate = isWordQuestion ? randObj.meaning : randObj.word;
+                if (wrongCandidate !== correctAnswer && !wrongAnswers.includes(wrongCandidate)) {
+                    wrongAnswers.push(wrongCandidate);
+                }
+            }
+
+            const options = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+
+            currentQuiz = {
+                question: questionText,
+                answer: correctAnswer,
+                options: options,
+                isWordQuestion: isWordQuestion
+            };
+
+            document.getElementById('quizQuestion').innerText = currentQuiz.question;
+            document.getElementById('quizTypeBadge').innerText = isWordQuestion ? "📖 영단어 ➔ 알맞은 뜻 맞추기" : "📖 뜻 ➔ 알맞은 영단어 맞추기";
+
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+
+            options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "pixel-btn bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold p-3.5 sm:p-4 rounded-xl border-b-4 border-slate-950 text-sm sm:text-base text-left transition-all flex items-center gap-2";
+                btn.innerHTML = `<span class="bg-slate-900 border border-slate-700 text-amber-400 font-pixel text-sm px-2 py-0.5 rounded-lg">${idx + 1}</span> <span>${optText}</span>`;
+                btn.onclick = () => handleQuizAnswer(optText);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleQuizAnswer(selectedOpt) {
+            if (selectedOpt === currentQuiz.answer) {
+                gameState.combo++;
+                const goldGain = 10 + (gameState.combo * 2);
+                gameState.gold += goldGain;
+
+                showBattleLog(`⭕ 정답입니다! [${gameState.combo} COMBO] 골드 +${goldGain} 획득! 호마맨의 스킬 난사 발동!`);
+                triggerRandomHeroSkill();
+            } else {
+                gameState.combo = 0;
+                showBattleLog(`❌ 오답입니다! 정답: [${currentQuiz.answer}]`);
+
+                let totalMobAtk = 0;
+                currentMobs.forEach(m => totalMobAtk += m.atk);
+
+                if (gameState.activeBuffs.shield > 0) {
+                    totalMobAtk = Math.round(totalMobAtk * 0.5);
+                }
+
+                gameState.hp -= totalMobAtk;
+                showBattleLog(`💥 몬스터 무리에게 ${totalMobAtk} 피해를 입었습니다! (남은 HP: ${gameState.hp})`);
+
+                const heroSprite = document.getElementById('heroSprite');
+                heroSprite.classList.add('animate-shake');
+                setTimeout(() => heroSprite.classList.remove('animate-shake'), 400);
+
+                if (gameState.hp <= 0) {
+                    gameState.hp = gameState.vit;
+                    showBattleLog(`☠️ 호마맨이 쓰러졌습니다! HP가 완전 회복되지만 스테이지 1-1로 복귀합니다.`);
+                    gameState.stageWorld = 1;
+                    gameState.stageNum = 1;
+                    spawnEnemyWave();
+                }
+            }
+
+            saveGameData();
+            updateUI();
+            generateNextQuiz();
+        }
+
+        function triggerRandomHeroSkill() {
+            const unlockedObjList = masterSkills.filter(s => gameState.unlockedSkills.includes(s.id));
+            const skill = unlockedObjList[Math.floor(Math.random() * unlockedObjList.length)];
+
+            const heroSprite = document.getElementById('heroSprite');
+            heroSprite.classList.add('animate-bounce');
+            setTimeout(() => heroSprite.classList.remove('animate-bounce'), 500);
+
+            if (skill.isNuke) {
+                const overlay = document.getElementById('nukeOverlay');
+                overlay.classList.add('animate-nuke');
+                setTimeout(() => overlay.classList.remove('animate-nuke'), 850);
+            }
+
+            showSkillFx(`${skill.icon} ${skill.name}!`);
+
+            if (skill.type === "buff") {
+                gameState.activeBuffs[skill.buffType] = skill.buffTurns;
+                showBattleLog(`✨ [${skill.name}] 발동! ${skill.desc}`);
+            } else if (skill.type === "heal") {
+                gameState.hp = Math.min(gameState.vit, gameState.hp + skill.healAmount);
+                if (skill.bonusGold) gameState.gold += skill.bonusGold;
+                showBattleLog(`💚 [${skill.name}] 발동! 체력이 ${skill.healAmount} 회복되었습니다.`);
+            } else {
+                let atkStat = getTotalAtk();
+
+                let critChance = gameState.dex;
+                if (gameState.activeBuffs.crit > 0 || gameState.activeBuffs.all > 0 || gameState.activeBuffs.butterBeer > 0) {
+                    critChance += 35;
+                }
+
+                const intMult = gameState.intMult / 100;
+                const comboMult = 1 + (gameState.combo * 0.05);
+
+                let targetMobs = [];
+                if (skill.type === "single") {
+                    targetMobs = [currentMobs[0]];
+                } else {
+                    targetMobs = currentMobs.slice(0, skill.targets || 5);
+                }
+
+                let totalDamageDealt = 0;
+
+                targetMobs.forEach(mob => {
+                    for (let h = 0; h < (skill.hits || 1); h++) {
+                        let isCrit = Math.random() * 100 < critChance;
+                        let hitDmg = Math.round(atkStat * skill.dmgMult * intMult * comboMult);
+                        if (isCrit) hitDmg = Math.round(hitDmg * 1.8);
+
+                        mob.hp -= hitDmg;
+                        totalDamageDealt += hitDmg;
+
+                        const node = document.getElementById(`mobSprite-${mob.id}`);
+                        if (node) {
+                            node.classList.add('animate-shake');
+                            setTimeout(() => node.classList.remove('animate-shake'), 400);
+                        }
+                    }
+                });
+
+                if (skill.bonusGold) gameState.gold += skill.bonusGold;
+
+                showBattleLog(`💥 [${skill.name}] ${targetMobs.length}마리 타격! 총 ${totalDamageDealt} 대미지!`);
+            }
+
+            Object.keys(gameState.activeBuffs).forEach(k => {
+                if (gameState.activeBuffs[k] > 0) gameState.activeBuffs[k]--;
+            });
+
+            currentMobs = currentMobs.filter(m => m.hp > 0);
+            renderEnemyMobContainer();
+
+            if (currentMobs.length === 0) {
+                setTimeout(handleWaveClear, 400);
+            }
+        }
+
+        function showSkillFx(text) {
+            const container = document.getElementById('skillFxContainer');
+            const textEl = document.getElementById('skillFxText');
+
+            textEl.innerText = text;
+            container.classList.remove('hidden');
+
+            setTimeout(() => {
+                container.classList.add('hidden');
+            }, 1000);
+        }
+
+        function handleWaveClear() {
+            const expGained = 30 + (gameState.stageWorld * 10);
+            gameState.exp += expGained;
+
+            showBattleLog(`🎉 [WAVE CLEAR] 몬스터 무리를 전멸시켰습니다! EXP +${expGained}`);
+
+            if (gameState.exp >= gameState.maxExp) {
+                gameState.level++;
+                gameState.exp -= gameState.maxExp;
+                gameState.maxExp = Math.round(gameState.maxExp * 1.4);
+                gameState.statPoints += 3;
+                gameState.hp = gameState.vit;
+
+                const newlyUnlocked = masterSkills.filter(s => s.reqLv <= gameState.level && !gameState.unlockedSkills.includes(s.id));
+                newlyUnlocked.forEach(s => gameState.unlockedSkills.push(s.id));
+
+                showBattleLog(`🎊 [LEVEL UP!] 호마맨이 Lv.${gameState.level}로 성장했습니다! 스텟 포인트 3개(✨) 획득!`);
+            }
+
+            if (gameState.stageNum >= 5) {
+                gameState.stageWorld++;
+                gameState.stageNum = 1;
+                showBattleLog(`🚀 [NEW WORLD] 새로운 ${gameState.stageWorld}월드로 진입합니다!`);
+            } else {
+                gameState.stageNum++;
+            }
+
+            saveGameData();
+            updateUI();
+            spawnEnemyWave();
+        }
+
+        function showBattleLog(msg) {
+            const logEl = document.getElementById('battleLogText');
+            logEl.innerText = msg;
+        }
+
+        function switchShopTab(tab) {
+            activeShopTab = tab;
+            
+            const btnItems = document.getElementById('tabBtn-items');
+            const btnBgms = document.getElementById('tabBtn-bgms');
+            const btnFonts = document.getElementById('tabBtn-fonts');
+            const btnBgs = document.getElementById('tabBtn-bgs');
+
+            const activeCss = "px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-amber-600 text-white";
+            const inactiveCss = "px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-400 hover:text-white";
+
+            btnItems.className = tab === 'items' ? activeCss : inactiveCss;
+            btnBgms.className = tab === 'bgms' ? activeCss : inactiveCss;
+            btnFonts.className = tab === 'fonts' ? activeCss : inactiveCss;
+            btnBgs.className = tab === 'bgs' ? activeCss : inactiveCss;
+
+            renderShopList();
+        }
+
+        function openShopModal() {
+            document.getElementById('shopModal').classList.remove('hidden');
+            renderShopList();
+            updateUI();
+        }
+
+        function closeShopModal() {
+            document.getElementById('shopModal').classList.add('hidden');
+        }
+
+        function renderShopList() {
+            const container = document.getElementById('shopItemList');
+            container.innerHTML = '';
+
+            if (activeShopTab === "items") {
+                shopItems.forEach(item => {
+                    const isOwnedWeapon = (item.type === "weapon" && gameState.inventory.includes(item.id));
+                    const card = document.createElement('div');
+                    card.className = "p-3 rounded-xl border border-slate-800 bg-slate-950 flex justify-between items-center";
+
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl p-2 bg-slate-900 rounded-xl border border-slate-800">${item.icon}</span>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <strong class="text-amber-300 text-sm sm:text-base">${item.name}</strong>
+                                    <span class="text-xs bg-slate-900 text-slate-400 px-1.5 py-0.5 rounded border border-slate-800">${item.origin}</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5">${item.desc}</p>
+                            </div>
+                        </div>
+                        <div>
+                            ${isOwnedWeapon ? `
+                                <span class="text-xs sm:text-sm bg-emerald-950 text-emerald-400 border border-emerald-600 px-3 py-1.5 rounded-xl font-bold">착용중</span>
+                            ` : `
+                                <button onclick="buyShopItem('${item.id}')" class="pixel-btn bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-xl border-b-4 border-amber-800 flex items-center gap-1">
+                                    💰 ${item.price} 구매
+                                </button>
+                            `}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } else if (activeShopTab === "bgms") {
+                shopBgms.forEach(bgm => {
+                    const isOwned = gameState.ownedBgms.includes(bgm.id);
+                    const isEquipped = (gameState.equippedBgm === bgm.id);
+                    const card = document.createElement('div');
+                    card.className = "p-3 rounded-xl border border-slate-800 bg-slate-950 flex justify-between items-center";
+
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl p-2 bg-slate-900 rounded-xl border border-slate-800">${bgm.icon}</span>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <strong class="text-amber-300 text-sm sm:text-base">${bgm.name}</strong>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5">${bgm.desc}</p>
+                            </div>
+                        </div>
+                        <div>
+                            ${isEquipped ? `
+                                <span class="text-xs sm:text-sm bg-rose-950 text-rose-300 border border-rose-600 px-3 py-1.5 rounded-xl font-bold">재생 중</span>
+                            ` : isOwned ? `
+                                <button onclick="equipBgm('${bgm.id}')" class="pixel-btn bg-rose-700 hover:bg-rose-600 text-white text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-xl border-b-4 border-rose-900">
+                                    선택하기
+                                </button>
+                            ` : `
+                                <button onclick="buyBgm('${bgm.id}')" class="pixel-btn bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-xl border-b-4 border-amber-800 flex items-center gap-1">
+                                    💰 ${bgm.price} 구매
+                                </button>
+                            `}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } else if (activeShopTab === "fonts") {
+                shopFonts.forEach(font => {
+                    const isOwned = gameState.ownedFonts.includes(font.id);
+                    const isEquipped = (gameState.equippedFont === font.id);
+                    const card = document.createElement('div');
+                    card.className = "p-3 rounded-xl border border-slate-800 bg-slate-950 flex justify-between items-center";
+
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl p-2 bg-slate-900 rounded-xl border border-slate-800">${font.icon}</span>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <strong class="text-amber-300 text-sm sm:text-base" style="font-family: ${font.family}">${font.name}</strong>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5">${font.desc}</p>
+                            </div>
+                        </div>
+                        <div>
+                            ${isEquipped ? `
+                                <span class="text-xs sm:text-sm bg-purple-950 text-purple-300 border border-purple-600 px-3 py-1.5 rounded-xl font-bold">적용 중</span>
+                            ` : isOwned ? `
+                                <button onclick="equipFont('${font.id}')" class="pixel-btn bg-purple-700 hover:bg-purple-600 text-white text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-xl border-b-4 border-purple-900">
+                                    착용하기
+                                </button>
+                            ` : `
+                                <button onclick="buyFont('${font.id}')" class="pixel-btn bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-xl border-b-4 border-amber-800 flex items-center gap-1">
+                                    💰 ${font.price} 구매
+                                </button>
+                            `}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } else if (activeShopTab === "bgs") {
+                shopBgs.forEach(bg => {
+                    const isOwned = gameState.ownedBgs.includes(bg.id);
+                    const isEquipped = (gameState.equippedBg === bg.id);
+                    const card = document.createElement('div');
+                    card.className = "p-3 rounded-xl border border-slate-800 bg-slate-950 flex justify-between items-center";
+
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl p-2 bg-slate-900 rounded-xl border border-slate-800">${bg.icon}</span>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <strong class="text-amber-300 text-sm sm:text-base">${bg.name}</strong>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5">${bg.desc}</p>
+                            </div>
+                        </div>
+                        <div>
+                            ${isEquipped ? `
+                                <span class="text-xs sm:text-sm bg-cyan-950 text-cyan-300 border border-cyan-600 px-3 py-1.5 rounded-xl font-bold">적용 중</span>
+                            ` : isOwned ? `
+                                <button onclick="equipBg('${bg.id}')" class="pixel-btn bg-cyan-700 hover:bg-cyan-600 text-white text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-xl border-b-4 border-cyan-900">
+                                    착용하기
+                                </button>
+                            ` : `
+                                <button onclick="buyBg('${bg.id}')" class="pixel-btn bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-xl border-b-4 border-amber-800 flex items-center gap-1">
+                                    💰 ${bg.price} 구매
+                                </button>
+                            `}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+        }
+
+        function buyShopItem(itemId) {
+            const item = shopItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            if (gameState.gold < item.price) {
+                alert("골드가 부족합니다! 퀴즈를 풀어 몬스터를 격파하고 골드를 모아보세요.");
+                return;
+            }
+
+            gameState.gold -= item.price;
+
+            if (item.type === "weapon") {
+                if (!gameState.inventory.includes(item.id)) {
+                    gameState.inventory.push(item.id);
+                }
+                showBattleLog(`⚔️ [${item.name}] 구매 및 착용 완료! 공격력이 폭등했습니다.`);
+            } else if (item.type === "consumable") {
+                if (item.heal) {
+                    gameState.hp = Math.min(gameState.vit, gameState.hp + item.heal);
+                    showBattleLog(`🧪 [${item.name}] 사용! 체력이 ${item.heal} 회복되었습니다.`);
+                }
+                if (item.buffType) {
+                    gameState.activeBuffs[item.buffType] = item.buffTurns;
+                    showBattleLog(`🍱 [${item.name}] 먹방 완료! ${item.buffTurns}턴 동안 막강한 버프가 적용됩니다.`);
+                }
+            }
+
+            saveGameData();
+            renderShopList();
+            updateUI();
+        }
+
+        function buyBgm(bgmId) {
+            const bgm = shopBgms.find(b => b.id === bgmId);
+            if (!bgm) return;
+
+            if (gameState.gold < bgm.price) {
+                alert("골드가 부족합니다! 퀴즈를 풀어 BGM을 구매해 보세요.");
+                return;
+            }
+
+            gameState.gold -= bgm.price;
+            gameState.ownedBgms.push(bgm.id);
+            gameState.equippedBgm = bgm.id;
+
+            applyEquippedCustomizations();
+            saveGameData();
+            renderShopList();
+            updateUI();
+            showBattleLog(`🎵 [${bgm.name}] BGM 구매 및 선택 완료!`);
+        }
+
+        function equipBgm(bgmId) {
+            gameState.equippedBgm = bgmId;
+            applyEquippedCustomizations();
+            saveGameData();
+            renderShopList();
+            updateUI();
+            showBattleLog(`🎵 배경음악 BGM이 변경되었습니다!`);
+        }
+
+        function buyFont(fontId) {
+            const font = shopFonts.find(f => f.id === fontId);
+            if (!font) return;
+
+            if (gameState.gold < font.price) {
+                alert("골드가 부족합니다! 퀴즈를 풀어 골드를 더 축적해 보세요.");
+                return;
+            }
+
+            gameState.gold -= font.price;
+            gameState.ownedFonts.push(font.id);
+            gameState.equippedFont = font.id;
+
+            applyEquippedCustomizations();
+            saveGameData();
+            renderShopList();
+            updateUI();
+            showBattleLog(`🔤 [${font.name}] 글꼴 구매 및 즉시 적용 완료!`);
+        }
+
+        function equipFont(fontId) {
+            gameState.equippedFont = fontId;
+            applyEquippedCustomizations();
+            saveGameData();
+            renderShopList();
+            updateUI();
+            showBattleLog(`🔤 글꼴 스타일이 변경되었습니다!`);
+        }
+
+        function buyBg(bgId) {
+            const bg = shopBgs.find(b => b.id === bgId);
+            if (!bg) return;
+
+            if (gameState.gold < bg.price) {
+                alert("골드가 부족합니다!");
+                return;
+            }
+
+            gameState.gold -= bg.price;
+            gameState.ownedBgs.push(bg.id);
+            gameState.equippedBg = bg.id;
+
+            applyEquippedCustomizations();
+            saveGameData();
+            renderShopList();
+            updateUI();
+            showBattleLog(`🖼️ [${bg.name}] 전장 테마 구매 및 즉시 적용 완료!`);
+        }
+
+        function equipBg(bgId) {
+            gameState.equippedBg = bgId;
+            applyEquippedCustomizations();
+            saveGameData();
+            renderShopList();
+            updateUI();
+            showBattleLog(`🖼️ 전장 테마가 변경되었습니다!`);
+        }
+
+        function openSkillListModal() {
+            document.getElementById('skillModal').classList.remove('hidden');
+            const container = document.getElementById('skillListContainer');
+            container.innerHTML = '';
+
+            masterSkills.forEach(skill => {
+                const isUnlocked = gameState.unlockedSkills.includes(skill.id);
+                const card = document.createElement('div');
+                card.className = `p-3.5 rounded-xl border ${isUnlocked ? 'border-purple-500/40 bg-slate-950' : 'border-slate-800 bg-slate-950/40 opacity-60'} flex items-center justify-between`;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl p-2 bg-slate-900 rounded-xl border border-slate-800">${skill.icon}</span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <strong class="${isUnlocked ? 'text-purple-300' : 'text-slate-500'} text-sm sm:text-base font-pixel">${skill.name}</strong>
+                                <span class="text-xs bg-slate-900 text-slate-400 px-2 py-0.5 rounded border border-slate-800">${skill.origin}</span>
+                                <span class="text-xs text-amber-400 font-pixel">Lv.${skill.reqLv} 해금</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">${skill.desc}</p>
+                        </div>
+                    </div>
+                    <div>
+                        ${isUnlocked ? '<span class="text-xs sm:text-sm text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/40 px-3 py-1 rounded-lg font-pixel">보유 중</span>' : '<span class="text-xs sm:text-sm text-slate-500 font-bold font-pixel">잠김</span>'}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function closeSkillListModal() {
+            document.getElementById('skillModal').classList.add('hidden');
+        }
+
+        function openCustomWordModal() {
+            document.getElementById('customWordModal').classList.remove('hidden');
+            document.getElementById('customWordInput').value = JSON.stringify(activeWords, null, 2);
+        }
+
+        function closeCustomWordModal() {
+            document.getElementById('customWordModal').classList.add('hidden');
+        }
+
+        function saveCustomWords() {
+            const rawVal = document.getElementById('customWordInput').value;
+            try {
+                const parsed = JSON.parse(rawVal);
+                if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].word && parsed[0].meaning) {
+                    gameState.customWords = parsed;
+                    saveGameData();
+                    prepareWordLibrary();
+                    generateNextQuiz();
+                    closeCustomWordModal();
+                    alert(`총 ${parsed.length}개의 커스텀 수능 단어가 적용되었습니다!`);
+                } else {
+                    alert("단어 형식이 올바르지 않습니다. [ { \"word\": \"단어\", \"meaning\": \"뜻\" } ] 구조를 맞춰주세요.");
+                }
+            } catch(e) {
+                alert("JSON 형식 오류가 발생했습니다. 포맷 가이드를 참고해 주세요.");
+            }
+        }
+
+        function loadDefaultWords() {
+            if (confirm("기본 제공 샘플 단어로 복원하시겠습니까?")) {
+                gameState.customWords = [];
+                saveGameData();
+                prepareWordLibrary();
+                generateNextQuiz();
+                closeCustomWordModal();
+            }
+        }
+
+        function openGuideModal() {
+            document.getElementById('guideModal').classList.remove('hidden');
+        }
+
+        function closeGuideModal() {
+            document.getElementById('guideModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
