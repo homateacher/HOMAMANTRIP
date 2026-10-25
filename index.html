@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>퀴즈 용사 호마맨: 수능 영단어 RPG</title>
+    <title>호마맨의 지식 여행: 지식 RPG</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -69,6 +69,38 @@
             30% { opacity: 0.9; background-color: #ffffff; }
             100% { opacity: 0; }
         }
+/* ===== [추가] 스킬 연출용 화면 이펙트 애니메이션 ===== */
+        /* 1. 화염/폭발 계열 (주황/붉은색 번쩍임) */
+        @keyframes flashFlame {
+            0% { opacity: 0; }
+            30% { opacity: 0.85; background-color: #f97316; }
+            100% { opacity: 0; }
+        }
+        .animate-flame { animation: flashFlame 0.6s ease-out; }
+
+        /* 2. 사이오닉/번개/마법 계열 (청보라/cyan 번쩍임) */
+        @keyframes flashMagic {
+            0% { opacity: 0; }
+            30% { opacity: 0.85; background-color: #a855f7; }
+            100% { opacity: 0; }
+        }
+        .animate-magic { animation: flashMagic 0.6s ease-out; }
+
+        /* 3. 회복/패트로누스/신성 계열 (에메랄드/초록색 번쩍임) */
+        @keyframes flashHeal {
+            0% { opacity: 0; }
+            30% { opacity: 0.75; background-color: #10b981; }
+            100% { opacity: 0; }
+        }
+        .animate-heal { animation: flashHeal 0.6s ease-out; }
+
+        /* 4. 전장 강진 효과 (화면 전체 웅장한 진동) */
+        @keyframes quakeStage {
+            0%, 100% { transform: translate(0, 0); }
+            10%, 50%, 90% { transform: translate(-8px, 6px); }
+            30%, 70% { transform: translate(8px, -6px); }
+        }
+        .animate-quake { animation: quakeStage 0.5s ease-in-out; }
         .animate-nuke {
             animation: flashNuke 0.8s ease-out;
         }
@@ -84,13 +116,20 @@
 
     <!-- Header & Navigation -->
     <header class="max-w-6xl w-full mx-auto bg-slate-900 border-2 border-slate-700 rounded-2xl p-3 sm:p-4 mb-3 flex flex-col sm:flex-row justify-between items-center shadow-2xl gap-3">
-        <div class="flex items-center gap-3">
-            <span class="text-3xl sm:text-5xl">⚔️</span>
+<div class="flex items-center gap-3">
+            <span class="text-3xl sm:text-5xl shrink-0">⚔️</span>
             <div>
-                <h1 class="text-2xl sm:text-3xl font-black text-amber-400 font-pixel tracking-wide flex items-center gap-2">
-                    퀴즈 용사 호마맨 <span class="text-sm px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-sans">수능 영단어 RPG</span>
-                </h1>
-                <p class="text-sm text-slate-400 mt-0.5">단어 퀴즈를 풀고 100종 원작 고증 전설 스킬과 낭만 장비로 호마맨을 육성하라!</p>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h1 class="text-xl sm:text-2xl font-black text-amber-400 font-pixel tracking-wide whitespace-nowrap">
+                        호마맨의 퀴즈 여행
+                    </h1>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-sans font-bold whitespace-nowrap">
+                        영어, 한자, 일본어 RPG
+                    </span>
+                </div>
+                <p class="text-xs sm:text-sm text-slate-300 mt-1">
+                    퀴즈를 풀고 낭만이 깃든 여러가지 스킬과 장비로 호마맨을 육성하며 나아가라!
+                </p>
             </div>
         </div>
 
@@ -298,12 +337,24 @@
             <!-- Word Quiz Interactive Console -->
             <div class="bg-slate-900 border-2 border-slate-700 rounded-2xl p-4 sm:p-5 shadow-xl flex-1 flex flex-col justify-between">
                 <div>
-                    <!-- Quiz Header Badge -->
-                    <div class="flex justify-between items-center mb-3">
-                        <span id="quizTypeBadge" class="bg-indigo-900/60 text-indigo-300 border border-indigo-500/40 text-xs sm:text-sm px-3 py-1 rounded-lg font-bold">
-                            📖 수능 영단어 3지선다 퀴즈
-                        </span>
-                        <span id="quizCounter" class="text-xs sm:text-sm text-slate-400 font-mono">단어 라이브러리 준비 중...</span>
+ <!-- Quiz Header Badge & Subject Mode Selectors -->
+                    <div class="flex justify-between items-center mb-3 gap-2 flex-wrap">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span id="quizTypeBadge" class="bg-indigo-900/60 text-indigo-300 border border-indigo-500/40 text-xs px-2.5 py-1 rounded-lg font-bold">
+                                📖 3지선다 퀴즈
+                            </span>
+                            <button onclick="switchQuizMode('english')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg border border-indigo-400 shadow">
+                                🔤 영단어
+                            </button>
+                            <button onclick="switchQuizMode('hanja')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black rounded-lg border border-amber-300 shadow">
+                                🈴 한자
+                            </button>
+                            <!-- [추가] 일본어 모드 버튼 -->
+                            <button onclick="switchQuizMode('japanese')" class="px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg border border-red-400 shadow">
+                                🇯🇵 일본어
+                            </button>
+                        </div>
+                        <span id="quizCounter" class="text-xs sm:text-sm text-slate-400 font-mono shrink-0">단어 준비 중...</span>
                     </div>
 
                     <!-- Question Card -->
@@ -1568,19 +1619,417 @@
   { "word": "confidentiality", "meaning": "비밀 유지" },
   { "word": "anonymity", "meaning": "익명성" }
         ];
+/* [추가] 기본 한자 목록 */
+        const defaultHanjaWords = [
+            { "word": "學校", "meaning": "학교 (배울 학, 학교 교)" },
+            { "word": "學生", "meaning": "학생 (배울 학, 날 생)" },
+            { "word": "先生", "meaning": "선생 (먼저 선, 날 생)" },
+            { "word": "大韓民國", "meaning": "대한민국 (큰 대, 한국 한, 백성 민, 나라 국)" },
+            { "word": "父母", "meaning": "부모 (아비 부, 어미 모)" },
+            { "word": "兄弟", "meaning": "형제 (형 형, 아우 제)" },
+            { "word": "日月火水木金土", "meaning": "일월화수목금토 (요일 한자)" },
+            { "word": "靑出於藍", "meaning": "청출어람 (푸를 청, 날 출, 어조사 어, 쪽 람)" },
+            { "word": "溫故知新", "meaning": "온고지신 (따뜻할 온, 옛 고, 알 지, 새 신)" },
+            { "word": "孤立無援", "meaning": "고립무원 (외로울 고, 서립, 없을 무, 도울 원)" },
+  { "word": "考", "meaning": "생각할 고" },
+  { "word": "思", "meaning": "생각 사" },
+  { "word": "想", "meaning": "생각 상" },
+  { "word": "知", "meaning": "알 지" },
+  { "word": "識", "meaning": "알 식" },
+  { "word": "理", "meaning": "다스릴 리 / 이치 리" },
+  { "word": "意", "meaning": "뜻 의" },
+  { "word": "感", "meaning": "느낄 감" },
+  { "word": "情", "meaning": "뜻 정 / 정성 정" },
+  { "word": "願", "meaning": "원할 원" },
+  { "word": "望", "meaning": "바랄 망" },
+  { "word": "欲", "meaning": "하고자 할 욕" },
+  { "word": "能", "meaning": "능할 능" },
+  { "word": "可", "meaning": "옳을 가 / 할 수 있을 가" },
+  { "word": "必", "meaning": "반드시 필" },
+  { "word": "要", "meaning": "구할 요 / 중요할 요" },
+  { "word": "重", "meaning": "무거울 중 / 겹칠 중" },
+  { "word": "輕", "meaning": "가벼울 경" },
+  { "word": "強", "meaning": "강할 강" },
+  { "word": "弱", "meaning": "약할 약" },
+  { "word": "速", "meaning": "빠를 속" },
+  { "word": "遲", "meaning": "늦을 지" },
+  { "word": "遠", "meaning": "멀 원" },
+  { "word": "近", "meaning": "가까울 근" },
+  { "word": "深", "meaning": "깊을 심" },
+  { "word": "淺", "meaning": "얕을 천" },
+  { "word": "廣", "meaning": "넓을 광" },
+  { "word": "狹", "meaning": "좁을 협" },
+  { "word": "溫", "meaning": "따뜻할 온" },
+  { "word": "冷", "meaning": "찰 냉" },
+  { "word": "熱", "meaning": "더울 열 / 열 열" },
+  { "word": "寒", "meaning": "찰 한" },
+  { "word": "春", "meaning": "봄 춘" },
+  { "word": "夏", "meaning": "여름 하" },
+  { "word": "秋", "meaning": "가을 추" },
+  { "word": "冬", "meaning": "겨울 동" },
+  { "word": "朝", "meaning": "아침 조" },
+  { "word": "晝", "meaning": "낮 주" },
+  { "word": "夕", "meaning": "저녁 석" },
+  { "word": "夜", "meaning": "밤 야" },
+  { "word": "今", "meaning": "이제 금" },
+  { "word": "昔", "meaning": "예 석" },
+  { "word": "來", "meaning": "올 래" },
+  { "word": "去", "meaning": "갈 거" },
+  { "word": "出", "meaning": "나갈 출" },
+  { "word": "入", "meaning": "들 입" },
+  { "word": "立", "meaning": "서다 립" },
+  { "word": "坐", "meaning": "앉을 좌" },
+  { "word": "行", "meaning": "다닐 행 / 항렬 항" },
+  { "word": "止", "meaning": "그칠 지" },
+  { "word": "動", "meaning": "움직일 동" },
+  { "word": "靜", "meaning": "고요할 정" },
+  { "word": "作", "meaning": "지을 작" },
+  { "word": "成", "meaning": "이룰 성" },
+  { "word": "變", "meaning": "변할 변" },
+  { "word": "化", "meaning": "될 화" },
+  { "word": "開", "meaning": "열 개" },
+  { "word": "閉", "meaning": "닫을 폐" },
+  { "word": "始", "meaning": "처음 시" },
+  { "word": "終", "meaning": "마칠 종" },
+  { "word": "集", "meaning": "모을 집" },
+  { "word": "散", "meaning": "흩어질 산" },
+  { "word": "同", "meaning": "한가지 동" },
+  { "word": "異", "meaning": "다를 이" },
+  { "word": "全", "meaning": "온전할 전" },
+  { "word": "半", "meaning": "반 반" },
+  { "word": "有", "meaning": "있을 유" },
+  { "word": "無", "meaning": "없을 무" },
+  { "word": "存", "meaning": "있을 존" },
+  { "word": "亡", "meaning": "망할 망" },
+  { "word": "得", "meaning": "얻을 득" },
+  { "word": "失", "meaning": "잃을 실" },
+  { "word": "利", "meaning": "이할 리" },
+  { "word": "害", "meaning": "해할 해" },
+  { "word": "吉", "meaning": "길할 길" },
+  { "word": "凶", "meaning": "흉할 흉" },
+  { "word": "福", "meaning": "복 복" },
+  { "word": "禍", "meaning": "재앙 화" },
+  { "word": "生", "meaning": "날 생" },
+  { "word": "死", "meaning": "죽을 사" },
+  { "word": "老", "meaning": "늙을 로" },
+  { "word": "病", "meaning": "병 병" },
+  { "word": "醫", "meaning": "의원 의" },
+  { "word": "藥", "meaning": "약 약" },
+  { "word": "體", "meaning": "몸 체" },
+  { "word": "首", "meaning": "머리 수" },
+  { "word": "面", "meaning": "낯 면 (얼굴 면)" },
+  { "word": "頭", "meaning": "머리 두" },
+  { "word": "心", "meaning": "마음 심" },
+  { "word": "血", "meaning": "피 혈" },
+  { "word": "骨", "meaning": "뼈 골" },
+  { "word": "肉", "meaning": "고기 육" },
+  { "word": "毛", "meaning": "털 모" },
+  { "word": "皮", "meaning": "가죽 피" },
+  { "word": "齒", "meaning": "이 치" },
+  { "word": "舌", "meaning": "혀 설" },
+  { "word": "言", "meaning": "말씀 언" },
+  { "word": "語", "meaning": "말씀 어" },
+  { "word": "話", "meaning": "말씀 화" },
+  { "word": "談", "meaning": "말씀 담" },
+  { "word": "說", "meaning": "말씀 설 / 달랠 세" },
+  { "word": "記", "meaning": "기록할 기" },
+  { "word": "錄", "meaning": "기록할 록" },
+  { "word": "聞", "meaning": "들을 문" },
+  { "word": "視", "meaning": "볼 시" },
+  { "word": "聽", "meaning": "들을 청" },
+  { "word": "讀", "meaning": "읽을 독" },
+  { "word": "寫", "meaning": "베낄 사" },
+  { "word": "問", "meaning": "물어볼 문" },
+  { "word": "答", "meaning": "대답할 답" },
+  { "word": "求", "meaning": "구할 구" },
+  { "word": "給", "meaning": "줄 급" },
+  { "word": "受", "meaning": "받을 수" },
+  { "word": "授", "meaning": "줄 수" },
+  { "word": "取", "meaning": "취할 취" },
+  { "word": "捨", "meaning": "버릴 사" },
+  { "word": "用", "meaning": "쓸 용" },
+  { "word": "使", "meaning": "부릴 사 / 하여금 사" },
+  { "word": "設", "meaning": "베풀 설" },
+  { "word": "備", "meaning": "갖출 비" },
+  { "word": "定", "meaning": "정할 정" },
+  { "word": "決", "meaning": "결단할 결" },
+  { "word": "斷", "meaning": "끊을 단" },
+  { "word": "斷", "meaning": "끊을 단" },
+  { "word": "續", "meaning": "이을 속" },
+  { "word": "聯", "meaning": "이을 련" },
+  { "word": "合", "meaning": "합할 합" },
+  { "word": "分", "meaning": "나눌 분" },
+  { "word": "別", "meaning": "나눌 별" },
+  { "word": "共", "meaning": "한가지 공" },
+  { "word": "各", "meaning": "각각 각" },
+  { "word": "自", "meaning": "스스로 자" },
+  { "word": "他", "meaning": "다를 타" },
+  { "word": "本", "meaning": "근본 본" },
+  { "word": "末", "meaning": "끝 말" },
+  { "word": "源", "meaning": "근원 원" },
+  { "word": "流", "meaning": "흐를 류" },
+  { "word": "根", "meaning": "뿌리 근" },
+  { "word": "枝", "meaning": "가지 지" },
+  { "word": "葉", "meaning": "잎 엽" },
+  { "word": "實", "meaning": "열매 실 / 실질 실" },
+  { "word": "種", "meaning": "씨 종" },
+  { "word": "植", "meaning": "심을 식" },
+  { "word": "養", "meaning": "기를 양" },
+  { "word": "育", "meaning": "기를 육" },
+  { "word": "態", "meaning": "모습 태" },
+  { "word": "度", "meaning": "법도 도 / 정도 도" },
+  { "word": "情", "meaning": "뜻 정 / 정성 정" },
+  { "word": "感", "meaning": "느낄 감" },
+  { "word": "想", "meaning": "생각할 상" },
+  { "word": "意", "meaning": "뜻 의" },
+  { "word": "念", "meaning": "생각 념" },
+  { "word": "志", "meaning": "뜻 지" },
+  { "word": "望", "meaning": "바랄 망" },
+  { "word": "願", "meaning": "원할 원" },
+  { "word": "求", "meaning": "구할 구" },
+  { "word": "得", "meaning": "얻을 득" },
+  { "word": "失", "meaning": "일หล 사 / 잃을 실" },
+  { "word": "給", "meaning": "줄 급" },
+  { "word": "受", "meaning": "받을 수" },
+  { "word": "授", "meaning": "줄 수" },
+  { "word": "答", "meaning": "대답할 답" },
+  { "word": "問", "meaning": "물어볼 문" },
+  { "word": "聞", "meaning": "들 을 문" },
+  { "word": "視", "meaning": "볼 시" },
+  { "word": "見", "meaning": "볼 견" },
+  { "word": "言", "meaning": "말씀 언" },
+  { "word": "語", "meaning": "말씀 어" },
+  { "word": "話", "meaning": "말할 화" },
+  { "word": "說", "meaning": "말할 설 / 달랠 세" },
+  { "word": "讀", "meaning": "읽을 독" },
+  { "word": "記", "meaning": "기록할 기" },
+  { "word": "考", "meaning": "생각할 고" },
+  { "word": "理", "meaning": "다스릴 리 / 이치 리" },
+  { "word": "法", "meaning": "법 법" },
+  { "word": "度", "meaning": "법도 도" },
+  { "word": "規", "meaning": "법도 규" },
+  { "word": "則", "meaning": "법칙 칙" },
+  { "word": "例", "meaning": "법식 예 / 본보기 예" },
+  { "word": "制", "meaning": "짓을 제 / 절제할 제" },
+  { "word": "統", "meaning": "거느릴 통" },
+  { "word": "治", "meaning": "다스릴 치" },
+  { "word": "政", "meaning": "정사 정 (정치 정)" },
+  { "word": "官", "meaning": "벼슬 관" },
+  { "word": "員", "meaning": "인원 원" },
+  { "word": "社", "meaning": "모일 사 (회사 사)" },
+  { "word": "會", "meaning": "모일 회" },
+  { "word": "組", "meaning": "짜일 조 (조직 조)" },
+  { "word": "合", "meaning": "합할 합" },
+  { "word": "同", "meaning": "한가지 동 (같을 동)" },
+  { "word": "異", "meaning": "다를 이" },
+  { "word": "變", "meaning": "변할 변" },
+  { "word": "化", "meaning": "될 화 (바뀔 화)" },
+  { "word": "發", "meaning": "필 발 / 나타날 발" },
+  { "word": "展", "meaning": "펴질 전" },
+  { "word": "進", "meaning": "나아갈 진" },
+  { "word": "退", "meaning": "물러설 퇴" },
+  { "word": "起", "meaning": "일어날 기" },
+  { "word": "立", "meaning": "서다 립" },
+  { "word": "坐", "meaning": "앉을 좌" },
+  { "word": "臥", "meaning": "누울 와" },
+  { "word": "行", "meaning": "다닐 행 / 행할 행" },
+  { "word": "止", "meaning": "그칠 지" },
+  { "word": "動", "meaning": "움직일 동" },
+  { "word": "靜", "meaning": "고요할 정" },
+  { "word": "快", "meaning": "쾌할 쾌 (즐거울 쾌)" },
+  { "word": "怒", "meaning": "성낼 노" },
+  { "word": "哀", "meaning": "슬플 애" },
+  { "word": "喜", "meaning": "기쁠 희" },
+  { "word": "樂", "meaning": "즐거울 락" },
+  { "word": "苦", "meaning": "쓸 고 (고통스러울 고)" },
+  { "word": "痛", "meaning": "아플 통" },
+  { "word": "難", "meaning": "어려울 난" },
+  { "word": "易", "meaning": "쉬울 이 / 바꿀 역" },
+  { "word": "成", "meaning": "이룰 성" },
+  { "word": "功", "meaning": "공 공 (공로 공)" },
+  { "word": "果", "meaning": "열매 과 / 결과 과" },
+  { "word": "因", "meaning": "인할 인 (원인 인)" },
+  { "word": "緣", "meaning": "인연 연" },
+  { "word": "報", "meaning": "갚을 보 / 알릴 보" },
+  { "word": "恩", "meaning": "은혜 은" },
+  { "word": "害", "meaning": "해할 해" },
+  { "word": "利", "meaning": "이로울 리" },
+  { "word": "益", "meaning": "더할 익 (이익 익)" },
+  { "word": "損", "meaning": "덜 손 (손해 손)" },
+  { "word": "財", "meaning": "재물 재" },
+  { "word": "貨", "meaning": "재화 화 / 돈 화" },
+  { "word": "寶", "meaning": "보배 보" },
+  { "word": "貴", "meaning": "귀할 귀" },
+  { "word": "賤", "meaning": "천할 천" },
+  { "word": "富", "meaning": "부유할 부" },
+  { "word": "貧", "meaning": "가난할 빈" },
+  { "word": "強", "meaning": "강할 강" },
+  { "word": "弱", "meaning": "약할 약" },
+  { "word": "重", "meaning": "무거울 중" },
+  { "word": "輕", "meaning": "가벼울 경" },
+  { "word": "遠", "meaning": "멀 원" },
+  { "word": "近", "meaning": "가까울 근" },
+  { "word": "深", "meaning": "깊을 심" },
+  { "word": "淺", "meaning": "얕을 천" },
+  { "word": "廣", "meaning": "넓을 광" },
+  { "word": "狹", "meaning": "좁을 협" },
+  { "word": "厚", "meaning": "두꺼울 후" },
+  { "word": "薄", "meaning": "엷을 박 (얇을 박)" },
+  { "word": "熱", "meaning": "더울 열" },
+  { "word": "冷", "meaning": "찰 냉" },
+  { "word": "溫", "meaning": "따뜻할 온" },
+  { "word": "涼", "meaning": "서늘할 량" },
+  { "word": "春", "meaning": "봄 춘" },
+  { "word": "夏", "meaning": "여름 하" },
+  { "word": "秋", "meaning": "가을 추" },
+  { "word": "冬", "meaning": "겨울 동" },
+  { "word": "朝", "meaning": "아침 조" },
+  { "word": "晝", "meaning": "낮 주" },
+  { "word": "夕", "meaning": "저녁 석" },
+  { "word": "夜", "meaning": "밤 야" },
+  { "word": "光", "meaning": "빛 광" },
+  { "word": "影", "meaning": "그림자 영" },
+  { "word": "音", "meaning": "소리 음" },
+  { "word": "響", "meaning": "울릴 향" },
+  { "word": "色", "meaning": "빛깔 색" },
+  { "word": "形", "meaning": "모양 형" },
+  { "word": "象", "meaning": "코끼리 상 / 모양 상" }
+        ];
+/* [추가] 기본 일본어(히라가나/가타카나) 목록 */
+        const defaultJapaneseWords = [
+            // ----- 히라가나 (Hiragana) -----
+            { "word": "あ", "meaning": "아 (히라가나)" },
+            { "word": "い", "meaning": "이 (히라가나)" },
+            { "word": "う", "meaning": "우 (히라가나)" },
+            { "word": "え", "meaning": "에 (히라가나)" },
+            { "word": "お", "meaning": "오 (히라가나)" },
+            { "word": "か", "meaning": "카 (히라가나)" },
+            { "word": "き", "meaning": "키 (히라가나)" },
+            { "word": "く", "meaning": "쿠 (히라가나)" },
+            { "word": "け", "meaning": "케 (히라가나)" },
+            { "word": "こ", "meaning": "코 (히라가나)" },
+            { "word": "さ", "meaning": "사 (히라가나)" },
+            { "word": "し", "meaning": "시 (히라가나)" },
+            { "word": "す", "meaning": "스 (히라가나)" },
+            { "word": "せ", "meaning": "세 (히라가나)" },
+            { "word": "そ", "meaning": "소 (히라가나)" },
+            { "word": "た", "meaning": "타 (히라가나)" },
+            { "word": "ち", "meaning": "치 (히라가나)" },
+            { "word": "つ", "meaning": "츠 (히라가나)" },
+            { "word": "て", "meaning": "테 (히라가나)" },
+            { "word": "と", "meaning": "토 (히라가나)" },
+            { "word": "な", "meaning": "나 (히라가나)" },
+            { "word": "に", "meaning": "니 (히라가나)" },
+            { "word": "ぬ", "meaning": "누 (히라가나)" },
+            { "word": "ね", "meaning": "네 (히라가나)" },
+            { "word": "の", "meaning": "노 (히라가나)" },
+            { "word": "は", "meaning": "하 (히라가나)" },
+            { "word": "ひ", "meaning": "히 (히라가나)" },
+            { "word": "ふ", "meaning": "후 (히라가나)" },
+            { "word": "へ", "meaning": "헤 (히라가나)" },
+            { "word": "ほ", "meaning": "호 (히라가나)" },
+            { "word": "ま", "meaning": "마 (히라가나)" },
+            { "word": "み", "meaning": "미 (히라가나)" },
+            { "word": "む", "meaning": "무 (히라가나)" },
+            { "word": "め", "meaning": "메 (히라가나)" },
+            { "word": "も", "meaning": "모 (히라가나)" },
+            { "word": "や", "meaning": "야 (히라가나)" },
+            { "word": "ゆ", "meaning": "유 (히라가나)" },
+            { "word": "よ", "meaning": "요 (히라가나)" },
+            { "word": "ら", "meaning": "라 (히라가나)" },
+            { "word": "り", "meaning": "리 (히라가나)" },
+            { "word": "る", "meaning": "루 (히라가나)" },
+            { "word": "れ", "meaning": "레 (히라가나)" },
+            { "word": "ろ", "meaning": "로 (히라가나)" },
+            { "word": "わ", "meaning": "와 (히라가나)" },
+            { "word": "を", "meaning": "오/을/를 (히라가나)" },
+            { "word": "ん", "meaning": "응/받침 (히라가나)" },
 
+            // ----- 가타카나 (Katakana) -----
+            { "word": "ア", "meaning": "아 (가타카나)" },
+            { "word": "イ", "meaning": "이 (가타카나)" },
+            { "word": "ウ", "meaning": "우 (가타카나)" },
+            { "word": "エ", "meaning": "에 (가타카나)" },
+            { "word": "オ", "meaning": "오 (가타카나)" },
+            { "word": "カ", "meaning": "카 (가타카나)" },
+            { "word": "キ", "meaning": "키 (가타카나)" },
+            { "word": "ク", "meaning": "쿠 (가타카나)" },
+            { "word": "ケ", "meaning": "케 (가타카나)" },
+            { "word": "コ", "meaning": "코 (가타카나)" },
+            { "word": "サ", "meaning": "사 (가타카나)" },
+            { "word": "シ", "meaning": "시 (가타카나)" },
+            { "word": "ス", "meaning": "스 (가타카나)" },
+            { "word": "セ", "meaning": "세 (가타카나)" },
+            { "word": "ソ", "meaning": "소 (가타카나)" },
+            { "word": "タ", "meaning": "타 (가타카나)" },
+            { "word": "チ", "meaning": "치 (가타카나)" },
+            { "word": "ツ", "meaning": "츠 (가타카나)" },
+            { "word": "テ", "meaning": "테 (가타카나)" },
+            { "word": "ト", "meaning": "토 (가타카나)" },
+            { "word": "ナ", "meaning": "나 (가타카나)" },
+            { "word": "ニ", "meaning": "니 (가타카나)" },
+            { "word": "ヌ", "meaning": "누 (가타카나)" },
+            { "word": "ネ", "meaning": "네 (가타카나)" },
+            { "word": "ノ", "meaning": "노 (가타카나)" },
+            { "word": "ハ", "meaning": "하 (가타카나)" },
+            { "word": "ヒ", "meaning": "히 (가타카나)" },
+            { "word": "フ", "meaning": "후 (가타카나)" },
+            { "word": "ヘ", "meaning": "헤 (가타카나)" },
+            { "word": "ホ", "meaning": "호 (가타카나)" },
+            { "word": "マ", "meaning": "마 (가타카나)" },
+            { "word": "ミ", "meaning": "미 (가타카나)" },
+            { "word": "ム", "meaning": "무 (가타카나)" },
+            { "word": "メ", "meaning": "메 (가타카나)" },
+            { "word": "モ", "meaning": "모 (가타카나)" },
+            { "word": "ヤ", "meaning": "야 (가타카나)" },
+            { "word": "ユ", "meaning": "유 (가타카나)" },
+            { "word": "ヨ", "meaning": "요 (가타카나)" },
+            { "word": "ラ", "meaning": "라 (가타카나)" },
+            { "word": "リ", "meaning": "리 (가타카나)" },
+            { "word": "ル", "meaning": "루 (가타카나)" },
+            { "word": "レ", "meaning": "레 (가타카나)" },
+            { "word": "ロ", "meaning": "로 (가타카나)" },
+            { "word": "ワ", "meaning": "와 (가타카나)" },
+            { "word": "ヲ", "meaning": "오/을/를 (가타카나)" },
+            { "word": "ン", "meaning": "응/받침 (가타카나)" }
+        ];
+/* [수정] 과목 모드 전환 함수 (영어 / 한자 / 일본어) */
+        function switchQuizMode(mode) {
+            if (mode === 'hanja') {
+                activeWords = defaultHanjaWords;
+                showBattleLog("🈴 [한자 모드] 한자 음과 뜻 정복 퀴즈가 시작됩니다!");
+            } else if (mode === 'japanese') {
+                activeWords = defaultJapaneseWords;
+                showBattleLog("🇯🇵 [일본어 모드] 히라가나 & 가타카나 마스터 퀴즈가 시작됩니다!");
+            } else {
+                activeWords = (gameState.customWords && gameState.customWords.length > 0) ? gameState.customWords : defaultWords;
+                showBattleLog("🔤 [영어 모드] 수능 영단어 격파 퀴즈가 시작됩니다!");
+            }
+            document.getElementById('quizCounter').innerText = `단어 라이브러리: ${activeWords.length}개 보관 중`;
+            generateNextQuiz();
+        }
         /* BGM Database - 같은 폴더 경로 (bgm1.mp3 ~ 원하는 만큼 무제한 추가 가능) */
         const shopBgms = [
-            { id: "bgm1", name: "기본 모험가 테마 (bgm1.mp3)", file: "bgm1.mp3", price: 0, icon: "🎺", desc: "호마맨의 용감한 시작을 알리는 기본 모험가 테마" },
-            { id: "bgm2", name: "신비한 던전 행진곡 (bgm2.mp3)", file: "bgm2.mp3", price: 200, icon: "🎹", desc: "신비롭고 웅장한 느낌의 던전 탐험 BGM" },
-            { id: "bgm3", name: "불타는 전장 행진곡 (bgm3.mp3)", file: "bgm3.mp3", price: 300, icon: "🎸", desc: "긴장감이 매섭게 몰아치는 열혈 전투 BGM" },
-            { id: "bgm4", name: "평화로운 마을 휴식 (bgm4.mp3)", file: "bgm4.mp3", price: 400, icon: "🎻", desc: "마음이 편안해지는 고즈넉한 마을 테마 BGM" },
-            { id: "bgm5", name: "사이아인 승리 행진 (bgm5.mp3)", file: "bgm5.mp3", price: 500, icon: "🥁", desc: "파워가 솟구치는 용사 승리의 전주곡" },
-            { id: "bgm6", name: "사이버 네온 비트 (bgm6.mp3)", file: "bgm6.mp3", price: 600, icon: "🎧", desc: "세련되고 트렌디한 전자음악 신스웨이브 BGM" },
-            { id: "bgm7", name: "황금빛 영웅 신전 (bgm7.mp3)", file: "bgm7.mp3", price: 700, icon: "🎷", desc: "고대 전설의 영웅들이 가득한 신전 오케스트라" },
-            { id: "bgm8", name: "심해 아틀란티스 (bgm8.mp3)", file: "bgm8.mp3", price: 800, icon: "🔔", desc: "몽환적이고 환상적인 바닷속 비밀 공간 테마" },
-            { id: "bgm9", name: "최후의 마왕 보스전 (bgm9.mp3)", file: "bgm9.mp3", price: 900, icon: "⚡", desc: "최종 결전의 비장함이 감도는 마왕 대결 BGM" },
-            { id: "bgm10", name: "수능 1등급 신화의 노래 (bgm10.mp3)", file: "bgm10.mp3", price: 1000, icon: "👑", desc: "모든 시험을 정복한 진정한 수능 마스터의 영광 BGM" }
+            { id: "bgm1", name: "1번째 (bgm1.mp3)", file: "bgm1.mp3", price: 0, icon: "🎺", desc: "호마맨의 용감한 시작을 알리는 기본 모험가 테마" },
+            { id: "bgm2", name: "2번째 (bgm2.mp3)", file: "bgm2.mp3", price: 150, icon: "🎹", desc: "신비롭고 웅장한 느낌의 던전 탐험 BGM" },
+            { id: "bgm3", name: "3번째 (bgm3.mp3)", file: "bgm3.mp3", price: 200, icon: "🎸", desc: "긴장감이 매섭게 몰아치는 열혈 전투 BGM" },
+            { id: "bgm4", name: "4번째 (bgm4.mp3)", file: "bgm4.mp3", price: 250, icon: "🎻", desc: "마음이 편안해지는 고즈넉한 마을 테마 BGM" },
+            { id: "bgm5", name: "5번째 (bgm5.mp3)", file: "bgm5.mp3", price: 300, icon: "🥁", desc: "파워가 솟구치는 용사 승리의 전주곡" },
+            { id: "bgm6", name: "6번째 (bgm6.mp3)", file: "bgm6.mp3", price: 350, icon: "🎧", desc: "세련되고 트렌디한 전자음악 신스웨이브 BGM" },
+            { id: "bgm7", name: "7번째 (bgm7.mp3)", file: "bgm7.mp3", price: 400, icon: "🎷", desc: "고대 전설의 영웅들이 가득한 신전 오케스트라" },
+            { id: "bgm8", name: "8번째 (bgm8.mp3)", file: "bgm8.mp3", price: 450, icon: "🔔", desc: "몽환적이고 환상적인 바닷속 비밀 공간 테마" },
+            { id: "bgm9", name: "9번째 (bgm9.mp3)", file: "bgm9.mp3", price: 500, icon: "⚡", desc: "최종 결전의 비장함이 감도는 마왕 대결 BGM" },
+            { id: "bgm10", name: "10번째 (bgm10.mp3)", file: "bgm10.mp3", price: 550, icon: "👑", desc: "모든 시험을 정복한 진정한 수능 마스터의 영광 BGM" },
+{ id: "bgm10", name: "11번째 (bgm11.mp3)", file: "bgm10.mp3", price: 600, icon: "👑", desc: "11번째" },
+{ id: "bgm10", name: "12번째 (bgm12.mp3)", file: "bgm10.mp3", price: 650, icon: "👑", desc: "12번째" },
+{ id: "bgm10", name: "13번째 (bgm13.mp3)", file: "bgm10.mp3", price: 700, icon: "👑", desc: "13번째" },
+{ id: "bgm10", name: "14번째 (bgm14.mp3)", file: "bgm10.mp3", price: 750, icon: "👑", desc: "14번째" },
+{ id: "bgm10", name: "15번째 (bgm15.mp3)", file: "bgm10.mp3", price: 800, icon: "👑", desc: "15번째" },
+{ id: "bgm10", name: "16번째 (bgm16.mp3)", file: "bgm10.mp3", price: 900, icon: "👑", desc: "16번째" },
+{ id: "bgm10", name: "17번째 (bgm17.mp3)", file: "bgm10.mp3", price: 950, icon: "👑", desc: "17번째" },
+{ id: "bgm10", name: "18번째 (bgm18.mp3)", file: "bgm10.mp3", price: 1000, icon: "👑", desc: "18번째" },
+{ id: "bgm10", name: "19번째 (bgm19.mp3)", file: "bgm10.mp3", price: 1000, icon: "👑", desc: "19번째" },
+{ id: "bgm10", name: "20번째 (bgm19.mp3)", file: "bgm10.mp3", price: 1000, icon: "👑", desc: "20번째" }
             /* 💡 원하는 만큼 bgm11.mp3, bgm12.mp3 등을 아래에 자유롭게 줄 추가 가능! */
         ];
 
@@ -1983,16 +2432,34 @@
 
             document.getElementById('stageDisplay').innerText = `${gameState.stageWorld}-${gameState.stageNum}`;
 
+ // 호마맨 레벨별 아바타 및 칭호 변화 (센스 만점 확장판)
             const heroAvatar = document.getElementById('heroAvatar');
-            if (gameState.level >= 10) {
+            const heroTitle = document.getElementById('heroTitle');
+
+            if (gameState.level >= 35) {
+                heroAvatar.innerText = "🌌👨‍🦲✨";
+                heroTitle.innerText = "꾸준힘의 달인";
+            } else if (gameState.level >= 30) {
+                heroAvatar.innerText = "🪐👨‍🦲🔥";
+                heroTitle.innerText = "우주 제패 지식 마스터";
+            } else if (gameState.level >= 25) {
+                heroAvatar.innerText = "🔥👨‍🦲⚡";
+                heroTitle.innerText = "하인즈";
+            } else if (gameState.level >= 20) {
+                heroAvatar.innerText = "🧙‍♂️👨‍🦲✨";
+                heroTitle.innerText = "대현자 호마맨";
+            } else if (gameState.level >= 15) {
+                heroAvatar.innerText = "🏆👨‍🦲⚔️";
+                heroTitle.innerText = "전설의 퀴즈 챔피언";
+            } else if (gameState.level >= 10) {
                 heroAvatar.innerText = "👑👨‍🦲";
-                document.getElementById('heroTitle').innerText = "전설의 수능 마스터";
+                heroTitle.innerText = "지식왕";
             } else if (gameState.level >= 5) {
                 heroAvatar.innerText = "⚡👨‍🦲";
-                document.getElementById('heroTitle').innerText = "영단어 슈퍼 용사";
+                heroTitle.innerText = "지식 용사";
             } else {
                 heroAvatar.innerText = "👨‍🦲";
-                document.getElementById('heroTitle').innerText = "수능 영단어 격파자";
+                heroTitle.innerText = "지식 조무래기";
             }
 
             updateBgmDropdownUI();
@@ -2167,8 +2634,10 @@
             });
         }
 
-        function generateNextQuiz() {
-            if (activeWords.length === 0) return;
+function generateNextQuiz() {
+            if (!activeWords || activeWords.length === 0) {
+                activeWords = defaultWords;
+            }
 
             const targetObj = activeWords[Math.floor(Math.random() * activeWords.length)];
             const isWordQuestion = Math.random() < 0.5;
@@ -2177,7 +2646,9 @@
             const correctAnswer = isWordQuestion ? targetObj.meaning : targetObj.word;
 
             let wrongAnswers = [];
-            while (wrongAnswers.length < 2) {
+            let attempts = 0;
+            while (wrongAnswers.length < 2 && attempts < 100) {
+                attempts++;
                 const randObj = activeWords[Math.floor(Math.random() * activeWords.length)];
                 const wrongCandidate = isWordQuestion ? randObj.meaning : randObj.word;
                 if (wrongCandidate !== correctAnswer && !wrongAnswers.includes(wrongCandidate)) {
@@ -2195,7 +2666,15 @@
             };
 
             document.getElementById('quizQuestion').innerText = currentQuiz.question;
-            document.getElementById('quizTypeBadge').innerText = isWordQuestion ? "📖 영단어 ➔ 알맞은 뜻 맞추기" : "📖 뜻 ➔ 알맞은 영단어 맞추기";
+            
+            // 현재 모드(영어/한자/일본어)에 맞춰 배지 텍스트 표시
+            if (activeWords === defaultHanjaWords) {
+                document.getElementById('quizTypeBadge').innerText = isWordQuestion ? "🈴 한자 ➔ 음과 뜻 맞추기" : "🈴 음과 뜻 ➔ 한자 맞추기";
+            } else if (typeof defaultJapaneseWords !== 'undefined' && activeWords === defaultJapaneseWords) {
+                document.getElementById('quizTypeBadge').innerText = isWordQuestion ? "🇯🇵 일본어 ➔ 발음 맞추기" : "🇯🇵 발음 ➔ 일본어 맞추기";
+            } else {
+                document.getElementById('quizTypeBadge').innerText = isWordQuestion ? "📖 영단어 ➔ 알맞은 뜻 맞추기" : "📖 뜻 ➔ 알맞은 영단어 맞추기";
+            }
 
             const optionsContainer = document.getElementById('quizOptions');
             optionsContainer.innerHTML = '';
@@ -2257,11 +2736,36 @@
             heroSprite.classList.add('animate-bounce');
             setTimeout(() => heroSprite.classList.remove('animate-bounce'), 500);
 
+            // ---------------- [스킬 연출 이펙트 분기 시작] ----------------
+            const overlay = document.getElementById('nukeOverlay');
+            const battleScreen = document.getElementById('battleScreen');
+
+            // 1) 멸망급 획기적 스킬 (하얀색 백색광 플래시)
             if (skill.isNuke) {
-                const overlay = document.getElementById('nukeOverlay');
-                overlay.classList.add('animate-nuke');
-                setTimeout(() => overlay.classList.remove('animate-nuke'), 850);
+                overlay.className = "fixed inset-0 pointer-events-none z-50 animate-nuke";
+                setTimeout(() => overlay.className = "fixed inset-0 pointer-events-none z-50 opacity-0", 850);
+            } 
+            // 2) 화염 / 폭발 계열 스킬 (붉은 오렌지빛 화염 플래시)
+            else if (skill.id.includes('fire') || skill.id.includes('flame') || skill.id.includes('incendio') || skill.id.includes('bazooka') || skill.id.includes('bomb') || skill.id.includes('dragon')) {
+                overlay.className = "fixed inset-0 pointer-events-none z-50 animate-flame";
+                setTimeout(() => overlay.className = "fixed inset-0 pointer-events-none z-50 opacity-0", 600);
             }
+            // 3) 마법 / 전기 / 사이오닉 / 신성 계열 (보라/네온빛 마법 플래시)
+            else if (skill.id.includes('psionic') || skill.id.includes('thunder') || skill.id.includes('genesis') || skill.id.includes('spark') || skill.id.includes('avada') || skill.id.includes('lumos')) {
+                overlay.className = "fixed inset-0 pointer-events-none z-50 animate-magic";
+                setTimeout(() => overlay.className = "fixed inset-0 pointer-events-none z-50 opacity-0", 600);
+            }
+            // 4) 회복 / 버프 계열 (에메랄드빛 치유 플래시)
+            else if (skill.type === "heal" || skill.type === "buff") {
+                overlay.className = "fixed inset-0 pointer-events-none z-50 animate-heal";
+                setTimeout(() => overlay.className = "fixed inset-0 pointer-events-none z-50 opacity-0", 600);
+            }
+            // 5) 타격감이 강한 강력한 단일/범위 물리 공격 (전장 화면 전체 진동 효과)
+            else if (skill.dmgMult >= 3.0 || (skill.hits && skill.hits >= 5)) {
+                battleScreen.classList.add('animate-quake');
+                setTimeout(() => battleScreen.classList.remove('animate-quake'), 500);
+            }
+            // ---------------- [스킬 연출 이펙트 분기 끝] ----------------
 
             showSkillFx(`${skill.icon} ${skill.name}!`);
 
