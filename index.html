@@ -69,8 +69,7 @@
             30% { opacity: 0.9; background-color: #ffffff; }
             100% { opacity: 0; }
         }
-/* ===== [추가] 스킬 연출용 화면 이펙트 애니메이션 ===== */
-        /* 1. 화염/폭발 계열 (주황/붉은색 번쩍임) */
+        /* 스킬 연출용 화면 이펙트 애니메이션 */
         @keyframes flashFlame {
             0% { opacity: 0; }
             30% { opacity: 0.85; background-color: #f97316; }
@@ -78,7 +77,6 @@
         }
         .animate-flame { animation: flashFlame 0.6s ease-out; }
 
-        /* 2. 사이오닉/번개/마법 계열 (청보라/cyan 번쩍임) */
         @keyframes flashMagic {
             0% { opacity: 0; }
             30% { opacity: 0.85; background-color: #a855f7; }
@@ -86,7 +84,6 @@
         }
         .animate-magic { animation: flashMagic 0.6s ease-out; }
 
-        /* 3. 회복/패트로누스/신성 계열 (에메랄드/초록색 번쩍임) */
         @keyframes flashHeal {
             0% { opacity: 0; }
             30% { opacity: 0.75; background-color: #10b981; }
@@ -94,7 +91,6 @@
         }
         .animate-heal { animation: flashHeal 0.6s ease-out; }
 
-        /* 4. 전장 강진 효과 (화면 전체 웅장한 진동) */
         @keyframes quakeStage {
             0%, 100% { transform: translate(0, 0); }
             10%, 50%, 90% { transform: translate(-8px, 6px); }
@@ -111,12 +107,12 @@
     <!-- Global Background Audio Player Elements -->
     <audio id="bgmAudioPlayer" loop preload="auto"></audio>
 
-    <!-- Flash Overlay for Ult Nukes -->
+    <!-- Flash Overlay for Ult Nukes & Skill FX -->
     <div id="nukeOverlay" class="fixed inset-0 pointer-events-none z-50 opacity-0"></div>
 
     <!-- Header & Navigation -->
     <header class="max-w-6xl w-full mx-auto bg-slate-900 border-2 border-slate-700 rounded-2xl p-3 sm:p-4 mb-3 flex flex-col sm:flex-row justify-between items-center shadow-2xl gap-3">
-<div class="flex items-center gap-3">
+        <div class="flex items-center gap-3">
             <span class="text-3xl sm:text-5xl shrink-0">⚔️</span>
             <div>
                 <div class="flex items-center gap-2 flex-wrap">
@@ -186,7 +182,7 @@
                             <span class="text-amber-400 font-black text-xl font-pixel">호마맨</span>
                             <span id="levelBadge" class="bg-amber-500/20 text-amber-300 text-sm px-2 py-0.5 rounded-md border border-amber-500/40 font-pixel">Lv.1</span>
                         </div>
-                        <p id="heroTitle" class="text-sm text-slate-400 mt-0.5">수능 영단어 격파자</p>
+                        <p id="heroTitle" class="text-sm text-slate-400 mt-0.5">지식 조무래기</p>
                         <!-- Total Attack Power Display -->
                         <div class="mt-1.5 inline-flex items-center gap-1 bg-amber-950/80 border border-amber-500/60 px-2.5 py-1 rounded-lg text-sm font-black text-amber-300">
                             ⚔️ 총 공격력: <span id="totalAtkVal" class="text-amber-400 font-pixel text-base">10</span>
@@ -330,14 +326,14 @@
 
                 <!-- Battle Log Console -->
                 <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 text-xs sm:text-sm h-16 overflow-y-auto custom-scrollbar relative z-10">
-                    <p id="battleLogText" class="text-slate-300 font-mono">⚔️ 수능 영단어 퀴즈 마을에 오신 것을 환영합니다! 문제를 맞춰 스킬을 난사해 보세요.</p>
+                    <p id="battleLogText" class="text-slate-300 font-mono">⚔️ 지식 퀴즈 마을에 오신 것을 환영합니다! 문제를 맞춰 스킬을 난사해 보세요.</p>
                 </div>
             </div>
 
             <!-- Word Quiz Interactive Console -->
             <div class="bg-slate-900 border-2 border-slate-700 rounded-2xl p-4 sm:p-5 shadow-xl flex-1 flex flex-col justify-between">
                 <div>
- <!-- Quiz Header Badge & Subject Mode Selectors -->
+                    <!-- Quiz Header Badge & Subject Mode Selectors -->
                     <div class="flex justify-between items-center mb-3 gap-2 flex-wrap">
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <span id="quizTypeBadge" class="bg-indigo-900/60 text-indigo-300 border border-indigo-500/40 text-xs px-2.5 py-1 rounded-lg font-bold">
@@ -347,9 +343,8 @@
                                 🔤 영단어
                             </button>
                             <button onclick="switchQuizMode('hanja')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black rounded-lg border border-amber-300 shadow">
-                                🈴 한자
+                                 한자
                             </button>
-                            <!-- [추가] 일본어 모드 버튼 -->
                             <button onclick="switchQuizMode('japanese')" class="px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg border border-red-400 shadow">
                                 🇯🇵 일본어
                             </button>
@@ -473,9 +468,9 @@
 
     <!-- Game Script Logic -->
     <script>
-        /* Compact Starter Words - User requested empty space to add custom words easily */
+        /* Starter Words - 빈칸/필요 시 자유롭게 확장 가능하도록 기본 배열 구조 유지 */
         const defaultWords = [
-  { "word": "abandon", "meaning": "버리다, 포기하다" },
+{ "word": "abandon", "meaning": "버리다, 포기하다" },
   { "word": "adequate", "meaning": "적절한, 충분한" },
   { "word": "beneficial", "meaning": "유익한, 이로운" },
   { "word": "abundant", "meaning": "풍부한" },
@@ -1993,7 +1988,8 @@
             { "word": "ヲ", "meaning": "오/을/를 (가타카나)" },
             { "word": "ン", "meaning": "응/받침 (가타카나)" }
         ];
-/* [수정] 과목 모드 전환 함수 (영어 / 한자 / 일본어) */
+
+        /* 과목 모드 전환 함수 (영어 / 한자 / 일본어) */
         function switchQuizMode(mode) {
             if (mode === 'hanja') {
                 activeWords = defaultHanjaWords;
@@ -2008,7 +2004,8 @@
             document.getElementById('quizCounter').innerText = `단어 라이브러리: ${activeWords.length}개 보관 중`;
             generateNextQuiz();
         }
-        /* BGM Database - 같은 폴더 경로 (bgm1.mp3 ~ 원하는 만큼 무제한 추가 가능) */
+
+        /* BGM Database - bgm1.mp3 ~ bgm20.mp3까지 20개 완성 */
         const shopBgms = [
             { id: "bgm1", name: "1번째 (bgm1.mp3)", file: "bgm1.mp3", price: 0, icon: "🎺", desc: "호마맨의 용감한 시작을 알리는 기본 모험가 테마" },
             { id: "bgm2", name: "2번째 (bgm2.mp3)", file: "bgm2.mp3", price: 150, icon: "🎹", desc: "신비롭고 웅장한 느낌의 던전 탐험 BGM" },
@@ -2020,17 +2017,16 @@
             { id: "bgm8", name: "8번째 (bgm8.mp3)", file: "bgm8.mp3", price: 450, icon: "🔔", desc: "몽환적이고 환상적인 바닷속 비밀 공간 테마" },
             { id: "bgm9", name: "9번째 (bgm9.mp3)", file: "bgm9.mp3", price: 500, icon: "⚡", desc: "최종 결전의 비장함이 감도는 마왕 대결 BGM" },
             { id: "bgm10", name: "10번째 (bgm10.mp3)", file: "bgm10.mp3", price: 500, icon: "👑", desc: "모든 시험을 정복한 진정한 수능 마스터의 영광 BGM" },
-{ id: "bgm11", name: "11번째 (bgm11.mp3)", file: "bgm11.mp3", price: 500, icon: "👑", desc: "11번째" },
-{ id: "bgm12", name: "12번째 (bgm12.mp3)", file: "bgm12.mp3", price: 500, icon: "👑", desc: "12번째" },
-{ id: "bgm13", name: "13번째 (bgm13.mp3)", file: "bgm13.mp3", price: 500, icon: "👑", desc: "13번째" },
-{ id: "bgm14", name: "14번째 (bgm14.mp3)", file: "bgm14.mp3", price: 500, icon: "👑", desc: "14번째" },
-{ id: "bgm15", name: "15번째 (bgm15.mp3)", file: "bgm15.mp3", price: 500, icon: "👑", desc: "15번째" },
-{ id: "bgm16", name: "16번째 (bgm16.mp3)", file: "bgm16.mp3", price: 500, icon: "👑", desc: "16번째" },
-{ id: "bgm17", name: "17번째 (bgm17.mp3)", file: "bgm17.mp3", price: 500, icon: "👑", desc: "17번째" },
-{ id: "bgm18", name: "18번째 (bgm18.mp3)", file: "bgm18.mp3", price: 500, icon: "👑", desc: "전투력 증가" },
-{ id: "bgm19", name: "19번째 (bgm19.mp3)", file: "bgm19.mp3", price: 500, icon: "👑", desc: "전투력 증가" },
-{ id: "bgm20", name: "20번째 (bgm20.mp3)", file: "bgm20.mp3", price: 500, icon: "👑", desc: "전투력 증가" }
-            /* 💡 원하는 만큼 bgm11.mp3, bgm12.mp3 등을 아래에 자유롭게 줄 추가 가능! */
+            { id: "bgm11", name: "11번째 (bgm11.mp3)", file: "bgm11.mp3", price: 500, icon: "👑", desc: "11번째 테마 음원" },
+            { id: "bgm12", name: "12번째 (bgm12.mp3)", file: "bgm12.mp3", price: 500, icon: "👑", desc: "12번째 테마 음원" },
+            { id: "bgm13", name: "13번째 (bgm13.mp3)", file: "bgm13.mp3", price: 500, icon: "👑", desc: "13번째 테마 음원" },
+            { id: "bgm14", name: "14번째 (bgm14.mp3)", file: "bgm14.mp3", price: 500, icon: "👑", desc: "14번째 테마 음원" },
+            { id: "bgm15", name: "15번째 (bgm15.mp3)", file: "bgm15.mp3", price: 500, icon: "👑", desc: "15번째 테마 음원" },
+            { id: "bgm16", name: "16번째 (bgm16.mp3)", file: "bgm16.mp3", price: 500, icon: "👑", desc: "16번째 테마 음원" },
+            { id: "bgm17", name: "17번째 (bgm17.mp3)", file: "bgm17.mp3", price: 500, icon: "👑", desc: "17번째 테마 음원" },
+            { id: "bgm18", name: "18번째 (bgm18.mp3)", file: "bgm18.mp3", price: 500, icon: "👑", desc: "전투력 증가 테마" },
+            { id: "bgm19", name: "19번째 (bgm19.mp3)", file: "bgm19.mp3", price: 500, icon: "👑", desc: "전투력 증가 테마" },
+            { id: "bgm20", name: "20번째 (bgm20.mp3)", file: "bgm20.mp3", price: 500, icon: "👑", desc: "전투력 증가 테마" }
         ];
 
         /* Full 100 Master Skills Database */
@@ -2153,7 +2149,7 @@
             { id: "serious_flip_planet", reqLv: 10, name: "진심 행성 뒤엎기", origin: "원펀맨", icon: "🪐", type: "aoe", targets: 5, isNuke: true, dmgMult: 11.0, desc: "행성 지각을 뒤엎어 1100% 멸망 대미지를 선사합니다." },
             { id: "bishop_peacemaker", reqLv: 10, name: "비숍 피스메이커", origin: "메이플스토리", icon: "✝️", type: "heal", healAmount: 600, bonusGold: 600, desc: "신성한 오브를 날려 HP 600 회복 및 600 골드 획득!" },
             { id: "battlecruiser_fleet", reqLv: 10, name: "함대 전탄 사격", origin: "스타크래프트", icon: "🚀", type: "aoe", targets: 5, hits: 6, dmgMult: 2.2, desc: "배틀크루저 편대가 나타나 6연속 전탄 폭격을 퍼붓습니다." },
-            { id: "homaman_god_strike", reqLv: 10, name: "호마맨 수능 1등급 신벌", origin: "수능마스터", icon: "👑", type: "aoe", targets: 5, isNuke: true, dmgMult: 20.0, desc: "모든 수능 영단어를 정복한 호마맨의 신화급 최강 종말 스킬!" }
+            { id: "homaman_god_strike", reqLv: 10, name: "호마맨 수능 1등급 신벌", origin: "수능마스터", icon: "👑", type: "aoe", targets: 5, isNuke: true, dmgMult: 20.0, desc: "모든 지식 단어를 정복한 호마맨의 신화급 최강 종말 스킬!" }
         ];
 
         /* Shop Databases (Items, Fonts, Backgrounds) */
@@ -2200,7 +2196,10 @@
             stageWorld: 1,
             stageNum: 1,
             combo: 0,
-            fontSize: "medium", // 'small', 'medium', 'large'
+            maxWorld: 1,
+            maxNum: 1,
+            permanentHpBonus: 0,
+            fontSize: "medium",
             bgmPlaying: false,
             activeBuffs: { atk: 0, crit: 0, shield: 0, all: 0, sanjiBento: 0, butterBeer: 0, marineStim: 0, saitamaBuff: 0 },
             customWords: [],
@@ -2295,7 +2294,6 @@
         }
 
         function applyEquippedCustomizations() {
-            // Apply Font
             const fontObj = shopFonts.find(f => f.id === gameState.equippedFont) || shopFonts[0];
             const fontStyleEl = document.getElementById('customFontStyles');
             fontStyleEl.innerHTML = `
@@ -2308,14 +2306,12 @@
                 }
             `;
 
-            // Apply Background
             const bgObj = shopBgs.find(b => b.id === gameState.equippedBg) || shopBgs[0];
             const bgOverlayEl = document.getElementById('battleBgOverlay');
             if (bgOverlayEl) {
                 bgOverlayEl.className = `absolute inset-0 ${bgObj.css} pointer-events-none transition-all duration-500`;
             }
 
-            // Apply Audio Source
             const curBgm = shopBgms.find(b => b.id === gameState.equippedBgm) || shopBgms[0];
             const audioPlayer = document.getElementById('bgmAudioPlayer');
             if (audioPlayer) {
@@ -2334,7 +2330,6 @@
             }
         }
 
-        /* Mobile-friendly BGM Audio Play Logic */
         function toggleBgmPlay() {
             const audioPlayer = document.getElementById('bgmAudioPlayer');
             const stateText = document.getElementById('bgmStateText');
@@ -2409,11 +2404,12 @@
             document.getElementById('quizCounter').innerText = `단어 라이브러리: ${activeWords.length}개 보관 중`;
         }
 
-        /* Update UI Overhaul */
         function updateUI() {
+            const totalMaxHp = gameState.vit + (gameState.permanentHpBonus || 0);
+
             document.getElementById('levelBadge').innerText = `Lv.${gameState.level}`;
-            document.getElementById('hpText').innerText = `${gameState.hp} / ${gameState.vit}`;
-            document.getElementById('hpBar').style.width = `${Math.max(0, (gameState.hp / gameState.vit) * 100)}%`;
+            document.getElementById('hpText').innerText = `${gameState.hp} / ${totalMaxHp}`;
+            document.getElementById('hpBar').style.width = `${Math.max(0, (gameState.hp / totalMaxHp) * 100)}%`;
 
             document.getElementById('expText').innerText = `${gameState.exp} / ${gameState.maxExp}`;
             document.getElementById('expBar').style.width = `${Math.min(100, (gameState.exp / gameState.maxExp) * 100)}%`;
@@ -2425,26 +2421,27 @@
 
             document.getElementById('strVal').innerText = gameState.str;
             document.getElementById('dexVal').innerText = `${gameState.dex}%`;
-            document.getElementById('vitVal').innerText = gameState.vit;
+            document.getElementById('vitVal').innerText = gameState.permanentHpBonus > 0 ? `${gameState.vit} (+${gameState.permanentHpBonus})` : gameState.vit;
             document.getElementById('intVal').innerText = `${gameState.intMult}%`;
 
             document.getElementById('totalAtkVal').innerText = getTotalAtk();
 
-            document.getElementById('stageDisplay').innerText = `${gameState.stageWorld}-${gameState.stageNum}`;
+            const maxW = gameState.maxWorld || 1;
+            const maxN = gameState.maxNum || 1;
+            document.getElementById('stageDisplay').innerText = `${gameState.stageWorld}-${gameState.stageNum} (🏆최고: ${maxW}-${maxN})`;
 
- // 호마맨 레벨별 아바타 및 칭호 변화 (센스 만점 확장판)
             const heroAvatar = document.getElementById('heroAvatar');
             const heroTitle = document.getElementById('heroTitle');
 
             if (gameState.level >= 35) {
                 heroAvatar.innerText = "🌌👨‍🦲✨";
-                heroTitle.innerText = "꾸준힘의 달인";
+                heroTitle.innerText = "전지전능 퀴즈의 신";
             } else if (gameState.level >= 30) {
                 heroAvatar.innerText = "🪐👨‍🦲🔥";
                 heroTitle.innerText = "우주 제패 지식 마스터";
             } else if (gameState.level >= 25) {
                 heroAvatar.innerText = "🔥👨‍🦲⚡";
-                heroTitle.innerText = "하인즈";
+                heroTitle.innerText = "지옥의 3개국어 정복자";
             } else if (gameState.level >= 20) {
                 heroAvatar.innerText = "🧙‍♂️👨‍🦲✨";
                 heroTitle.innerText = "대현자 호마맨";
@@ -2468,7 +2465,6 @@
             renderInventoryUI();
         }
 
-        /* Render Active Buff Status Panel */
         function renderBuffStatusUI() {
             const buffContainer = document.getElementById('activeBuffBadges');
             buffContainer.innerHTML = '';
@@ -2502,7 +2498,6 @@
             }
         }
 
-        /* Render Quick Skill Display Panel Under Stats */
         function renderQuickSkillListUI() {
             const container = document.getElementById('quickSkillList');
             container.innerHTML = '';
@@ -2525,7 +2520,6 @@
 
             let badgesHtml = '';
 
-            // Weapons
             gameState.inventory.forEach(itemId => {
                 const item = shopItems.find(i => i.id === itemId);
                 if (item) {
@@ -2533,19 +2527,16 @@
                 }
             });
 
-            // Equipped BGM Badge
             const curBgm = shopBgms.find(b => b.id === gameState.equippedBgm);
             if (curBgm) {
                 badgesHtml += `<span class="text-xs bg-rose-950/60 text-rose-200 border border-rose-500/40 px-2 py-0.5 rounded-lg font-bold flex items-center gap-1">${curBgm.icon} ${curBgm.name}</span>`;
             }
 
-            // Equipped Font Badge
             const curFont = shopFonts.find(f => f.id === gameState.equippedFont);
             if (curFont) {
                 badgesHtml += `<span class="text-xs bg-purple-950/60 text-purple-200 border border-purple-500/40 px-2 py-0.5 rounded-lg font-bold flex items-center gap-1">${curFont.icon} ${curFont.name}</span>`;
             }
 
-            // Equipped Background Badge
             const curBg = shopBgs.find(b => b.id === gameState.equippedBg);
             if (curBg) {
                 badgesHtml += `<span class="text-xs bg-cyan-950/60 text-cyan-200 border border-cyan-500/40 px-2 py-0.5 rounded-lg font-bold flex items-center gap-1">${curBg.icon} ${curBg.name}</span>`;
@@ -2634,7 +2625,7 @@
             });
         }
 
-function generateNextQuiz() {
+        function generateNextQuiz() {
             if (!activeWords || activeWords.length === 0) {
                 activeWords = defaultWords;
             }
@@ -2667,7 +2658,6 @@ function generateNextQuiz() {
 
             document.getElementById('quizQuestion').innerText = currentQuiz.question;
             
-            // 현재 모드(영어/한자/일본어)에 맞춰 배지 텍스트 표시
             if (activeWords === defaultHanjaWords) {
                 document.getElementById('quizTypeBadge').innerText = isWordQuestion ? "🈴 한자 ➔ 음과 뜻 맞추기" : "🈴 음과 뜻 ➔ 한자 맞추기";
             } else if (typeof defaultJapaneseWords !== 'undefined' && activeWords === defaultJapaneseWords) {
@@ -2715,8 +2705,9 @@ function generateNextQuiz() {
                 setTimeout(() => heroSprite.classList.remove('animate-shake'), 400);
 
                 if (gameState.hp <= 0) {
-                    gameState.hp = gameState.vit;
-                    showBattleLog(`☠️ 호마맨이 쓰러졌습니다! HP가 완전 회복되지만 스테이지 1-1로 복귀합니다.`);
+                    const totalMaxHp = gameState.vit + (gameState.permanentHpBonus || 0);
+                    gameState.hp = totalMaxHp;
+                    showBattleLog(`☠️ 호마맨이 쓰러졌습니다! 스테이지 1-1로 복귀하지만, 영구 HP 보너스는 유지됩니다!`);
                     gameState.stageWorld = 1;
                     gameState.stageNum = 1;
                     spawnEnemyWave();
@@ -2736,36 +2727,29 @@ function generateNextQuiz() {
             heroSprite.classList.add('animate-bounce');
             setTimeout(() => heroSprite.classList.remove('animate-bounce'), 500);
 
-            // ---------------- [스킬 연출 이펙트 분기 시작] ----------------
             const overlay = document.getElementById('nukeOverlay');
             const battleScreen = document.getElementById('battleScreen');
 
-            // 1) 멸망급 획기적 스킬 (하얀색 백색광 플래시)
             if (skill.isNuke) {
                 overlay.className = "fixed inset-0 pointer-events-none z-50 animate-nuke";
                 setTimeout(() => overlay.className = "fixed inset-0 pointer-events-none z-50 opacity-0", 850);
             } 
-            // 2) 화염 / 폭발 계열 스킬 (붉은 오렌지빛 화염 플래시)
             else if (skill.id.includes('fire') || skill.id.includes('flame') || skill.id.includes('incendio') || skill.id.includes('bazooka') || skill.id.includes('bomb') || skill.id.includes('dragon')) {
                 overlay.className = "fixed inset-0 pointer-events-none z-50 animate-flame";
                 setTimeout(() => overlay.className = "fixed inset-0 pointer-events-none z-50 opacity-0", 600);
             }
-            // 3) 마법 / 전기 / 사이오닉 / 신성 계열 (보라/네온빛 마법 플래시)
             else if (skill.id.includes('psionic') || skill.id.includes('thunder') || skill.id.includes('genesis') || skill.id.includes('spark') || skill.id.includes('avada') || skill.id.includes('lumos')) {
                 overlay.className = "fixed inset-0 pointer-events-none z-50 animate-magic";
                 setTimeout(() => overlay.className = "fixed inset-0 pointer-events-none z-50 opacity-0", 600);
             }
-            // 4) 회복 / 버프 계열 (에메랄드빛 치유 플래시)
             else if (skill.type === "heal" || skill.type === "buff") {
                 overlay.className = "fixed inset-0 pointer-events-none z-50 animate-heal";
                 setTimeout(() => overlay.className = "fixed inset-0 pointer-events-none z-50 opacity-0", 600);
             }
-            // 5) 타격감이 강한 강력한 단일/범위 물리 공격 (전장 화면 전체 진동 효과)
             else if (skill.dmgMult >= 3.0 || (skill.hits && skill.hits >= 5)) {
                 battleScreen.classList.add('animate-quake');
                 setTimeout(() => battleScreen.classList.remove('animate-quake'), 500);
             }
-            // ---------------- [스킬 연출 이펙트 분기 끝] ----------------
 
             showSkillFx(`${skill.icon} ${skill.name}!`);
 
@@ -2773,7 +2757,8 @@ function generateNextQuiz() {
                 gameState.activeBuffs[skill.buffType] = skill.buffTurns;
                 showBattleLog(`✨ [${skill.name}] 발동! ${skill.desc}`);
             } else if (skill.type === "heal") {
-                gameState.hp = Math.min(gameState.vit, gameState.hp + skill.healAmount);
+                const totalMaxHp = gameState.vit + (gameState.permanentHpBonus || 0);
+                gameState.hp = Math.min(totalMaxHp, gameState.hp + skill.healAmount);
                 if (skill.bonusGold) gameState.gold += skill.bonusGold;
                 showBattleLog(`💚 [${skill.name}] 발동! 체력이 ${skill.healAmount} 회복되었습니다.`);
             } else {
@@ -2853,7 +2838,7 @@ function generateNextQuiz() {
                 gameState.exp -= gameState.maxExp;
                 gameState.maxExp = Math.round(gameState.maxExp * 1.4);
                 gameState.statPoints += 3;
-                gameState.hp = gameState.vit;
+                gameState.hp = gameState.vit + (gameState.permanentHpBonus || 0);
 
                 const newlyUnlocked = masterSkills.filter(s => s.reqLv <= gameState.level && !gameState.unlockedSkills.includes(s.id));
                 newlyUnlocked.forEach(s => gameState.unlockedSkills.push(s.id));
@@ -2867,6 +2852,18 @@ function generateNextQuiz() {
                 showBattleLog(`🚀 [NEW WORLD] 새로운 ${gameState.stageWorld}월드로 진입합니다!`);
             } else {
                 gameState.stageNum++;
+            }
+
+            const currentScore = (gameState.stageWorld * 10) + gameState.stageNum;
+            const maxScore = ((gameState.maxWorld || 1) * 10) + (gameState.maxNum || 1);
+
+            if (currentScore > maxScore) {
+                gameState.maxWorld = gameState.stageWorld;
+                gameState.maxNum = gameState.stageNum;
+                gameState.permanentHpBonus = currentScore;
+                
+                showBattleLog(`🔥 [신기록 달성!] 최고 기록 갱신! (${gameState.maxWorld}-${gameState.maxNum}) 영구 HP +${currentScore} 획득!`);
+                showSkillFx(`🏆 최고 신기록 갱신! (${gameState.maxWorld}-${gameState.maxNum})`);
             }
 
             saveGameData();
@@ -3061,7 +3058,8 @@ function generateNextQuiz() {
                 showBattleLog(`⚔️ [${item.name}] 구매 및 착용 완료! 공격력이 폭등했습니다.`);
             } else if (item.type === "consumable") {
                 if (item.heal) {
-                    gameState.hp = Math.min(gameState.vit, gameState.hp + item.heal);
+                    const totalMaxHp = gameState.vit + (gameState.permanentHpBonus || 0);
+                    gameState.hp = Math.min(totalMaxHp, gameState.hp + item.heal);
                     showBattleLog(`🧪 [${item.name}] 사용! 체력이 ${item.heal} 회복되었습니다.`);
                 }
                 if (item.buffType) {
@@ -3215,7 +3213,7 @@ function generateNextQuiz() {
                     prepareWordLibrary();
                     generateNextQuiz();
                     closeCustomWordModal();
-                    alert(`총 ${parsed.length}개의 커스텀 수능 단어가 적용되었습니다!`);
+                    alert(`총 ${parsed.length}개의 커스텀 단어가 적용되었습니다!`);
                 } else {
                     alert("단어 형식이 올바르지 않습니다. [ { \"word\": \"단어\", \"meaning\": \"뜻\" } ] 구조를 맞춰주세요.");
                 }
